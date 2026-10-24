@@ -59,6 +59,7 @@ Checked on 24 Oct 2026 against the module list on FirstBit's public features pag
 | | Electronic approvals | Approvals inbox, approval rules | ✅ |
 | | Notifications | 🔔 Notifications (13 alert types), email digest, preferences | ◐ Email opens your mail app; no push server |
 | | Mobile app | Site app (installable web app, offline shell) | ◐ Web app, not a store app |
+| | Desktop app (added) | macOS .dmg and Windows .exe installers (Electron), native menus and dialogs, offline | ✅ Unsigned, so first launch shows an OS warning |
 | | Email sending | Email invoice to client, email alert digest | ◐ Uses your email app (mailto) |
 | | Backups | Settings → Export / Import backup | ✅ |
 | | Updates | — | — Vendor service |

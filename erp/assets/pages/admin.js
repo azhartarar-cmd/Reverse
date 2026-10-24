@@ -60,16 +60,22 @@ Actions.addUser = () => openModal('Invite user', [
   { name: 'email', label: 'Email', type: 'email' },
   { name: 'role', label: 'Role', type: 'select', options: options(['Administrator', 'Finance', 'Project Manager', 'Procurement', 'HR', 'Storekeeper'].map((r) => [r, r])) },
 ], (x) => { S().users.push(x); });
-Actions.exportJson = () => download(`jrc-erp-backup-${today()}.json`, JSON.stringify(S(), null, 2), 'application/json');
-Actions.importJson = (v, d, el) => {
-  const f = el.files[0];
-  if (!f) return;
-  f.text().then((t) => {
-    try {
-      const data = JSON.parse(t);
-      if (!data.projects || !data.company) throw new Error('not a JRC backup');
-      Store.state = data;
-      commit('Backup imported');
-    } catch (e) { alert('Could not import: ' + e.message); }
-  });
+Actions.exportJson = () => {
+  const json = JSON.stringify(S(), null, 2);
+  if (window.jrcDesktop) window.jrcDesktop.saveBackup(json).then((p) => p && toast('Backup saved'));
+  else download(`jrc-erp-backup-${today()}.json`, json, 'application/json');
+};
+function restoreBackup(text) {
+  try {
+    const data = JSON.parse(text);
+    if (!data.projects || !data.company) throw new Error('this is not a JRC ERP backup file');
+    Store.state = Store.migrate(data);
+    commit('Backup restored');
+  } catch (e) { alert('Could not restore: ' + e.message); }
+}
+Actions.importJson = (v, d, el) => { const f = el.files[0]; if (f) f.text().then(restoreBackup); };
+Actions.desktopRestore = () => {
+  if (!window.jrcDesktop) return;
+  if (!confirm('Restoring a backup replaces all current data. Continue?')) return;
+  window.jrcDesktop.openBackup().then((t) => t && restoreBackup(t));
 };

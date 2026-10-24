@@ -163,10 +163,10 @@ const Calc = {
 };
 
 // ---------- UI helpers ----------
-function toast(msg) {
+function toast(msg, type = '') {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
+  t.innerHTML = (type === 'error' ? icon('alert', 16) : icon('check', 16)) + `<span>${esc(msg)}</span>`;
+  t.className = 'toast show ' + type;
   clearTimeout(toast._t);
   toast._t = setTimeout(() => t.classList.remove('show'), 2200);
 }
@@ -175,14 +175,19 @@ function card(title, body, { actions = '', flush = false } = {}) {
   return `<section class="card">${title ? `<div class="card-h"><h3>${title}</h3><div class="btn-row">${actions}</div></div>` : ''}
     <div class="card-b ${flush ? 'flush' : ''}">${body}</div></section>`;
 }
-function kpi(label, value, sub = '') {
-  return `<div class="card kpi"><div class="lbl">${label}</div><div class="val">${value}</div>${sub ? `<div class="sub">${sub}</div>` : ''}</div>`;
+// href makes the tile a link to the screen behind the figure
+function kpi(label, value, sub = '', href = '') {
+  const inner = `<div class="lbl">${label}</div><div class="val">${value}</div>${sub ? `<div class="sub">${sub}</div>` : ''}`;
+  return href ? `<a class="card kpi" href="${href}">${inner}</a>` : `<div class="card kpi">${inner}</div>`;
 }
+const emptyState = (msg) => `<div class="empty">${icon('box', 28)}<div>${msg}</div></div>`;
 // cols: [{ h, f: row => html, num?: bool, cls? }]
+// Tables with 8+ rows get a filter box, row count and CSV export; headers sort on click (see ux.js).
 function table(cols, rows, { empty = 'Nothing here yet.', foot = '' } = {}) {
-  if (!rows.length) return `<div class="empty">${empty}</div>`;
-  return `<div class="table-wrap"><table><thead><tr>${cols.map((c) => `<th class="${c.num ? 'num' : ''}">${c.h}</th>`).join('')}</tr></thead>
-    <tbody>${rows.map((r) => `<tr>${cols.map((c) => `<td class="${c.num ? 'num' : ''} ${c.cls || ''}">${c.f(r)}</td>`).join('')}</tr>`).join('')}${foot}</tbody></table></div>`;
+  if (!rows.length) return emptyState(empty);
+  const tools = rows.length >= 8 ? `<div class="tbl-tools">${icon('search', 15)}<input class="tbl-filter" placeholder="Filter ${rows.length} rows…" aria-label="Filter rows"><span class="tbl-count"></span><button class="btn sm ghost" data-act="tblCsv" title="Export this table as CSV">${icon('download', 14)} CSV</button></div>` : '';
+  return `<div class="tbl">${tools}<div class="table-wrap"><table><thead><tr>${cols.map((c, i) => `<th class="${c.num ? 'num' : ''}" ${c.h ? `data-sort="${i}"` : ''}>${c.h}</th>`).join('')}</tr></thead>
+    <tbody>${rows.map((r) => `<tr>${cols.map((c) => `<td class="${c.num ? 'num' : ''} ${c.cls || ''}">${c.f(r)}</td>`).join('')}</tr>`).join('')}${foot}</tbody></table></div></div>`;
 }
 function tabs(base, list, active) {
   return `<div class="tabs">${list.map(([k, label]) => `<a class="tab ${k === active ? 'active' : ''}" href="#/${base}/${k}">${label}</a>`).join('')}</div>`;
@@ -202,8 +207,8 @@ function openModal(title, fields, onSubmit, { submit = 'Save', wide = false, htm
     return `<label class="field ${f.full ? 'full' : ''}"><span>${f.label}</span>${input}</label>`;
   }).join('');
   root.innerHTML = `<div class="modal-back"><form class="modal ${wide ? 'wide' : ''}">
-    <div class="modal-h"><h3>${title}</h3><button type="button" class="icon-btn" data-close>✕</button></div>
-    <div class="modal-b">${html}<div class="form-grid">${body}</div></div>
+    <div class="modal-h"><h3>${title}</h3><button type="button" class="icon-btn" data-close aria-label="Close">${icon('x')}</button></div>
+    <div class="modal-b"><div class="modal-err" hidden></div>${html}<div class="form-grid">${body}</div></div>
     <div class="modal-f">${onSubmit ? `<button type="button" class="btn" data-close>Cancel</button><button class="btn primary">${submit}</button>` : '<button type="button" class="btn" data-close>Close</button>'}</div>
   </form></div>`;
   const form = root.querySelector('form');
@@ -216,11 +221,18 @@ function openModal(title, fields, onSubmit, { submit = 'Save', wide = false, htm
       const raw = form.elements[f.name].value;
       data[f.name] = f.type === 'number' ? Number(raw) : raw;
     });
+    root.querySelector('.modal-err').hidden = true;
     if (onSubmit(data) !== false) { closeModal(); commit(); }
   });
-  form.querySelector('input,select,textarea')?.focus();
+  (form.querySelector('.modal-b input:not([type=file]),.modal-b select,.modal-b textarea') || form.querySelector('[data-close]'))?.focus();
 }
 function closeModal() { document.getElementById('modal-root').innerHTML = ''; }
+// Validation messages: shown inside the open form instead of a blocking browser dialog.
+window.alert = (msg) => {
+  const box = document.querySelector('#modal-root .modal-err');
+  if (box) { box.innerHTML = icon('alert', 16) + `<span>${esc(msg)}</span>`; box.hidden = false; box.scrollIntoView({ block: 'nearest' }); }
+  else toast(String(msg), 'error');
+};
 
 function download(name, text, type = 'text/plain') {
   const a = document.createElement('a');

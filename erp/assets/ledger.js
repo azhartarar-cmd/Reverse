@@ -144,7 +144,13 @@ const Ledger = {
   },
 
   // entity: 'JRC' | 'JPH' | 'ALL' (consolidated, intercompany eliminated)
-  filter(J, entity) { return J.filter((j) => (entity === 'ALL' ? !j.ic : j.entity === entity)); },
+  // Group view: intercompany journals keep only their real cash legs (bank to bank between the two companies);
+  // the internal hire revenue/cost and the intercompany receivable/payable are eliminated.
+  filter(J, entity) {
+    if (entity !== 'ALL') return J.filter((j) => j.entity === entity);
+    const banks = new Set(Object.values(this.bankAcc));
+    return J.map((j) => (j.ic ? { ...j, lines: j.lines.filter((l) => banks.has(l.acc)) } : j)).filter((j) => j.lines.length);
+  },
   balances(entity, { from = '0000', to = '9999', opening = true } = {}) {
     const out = {};
     this.filter(this.build(), entity).forEach((j) => {

@@ -131,18 +131,18 @@ Pages.site = {
     const pid = this.project || mine[0]?.id;
     const p = project(pid);
     const c = Calc.project(p);
-    const tile = (act, icon, label, extra = '') => `<button class="card" style="padding:18px 12px;text-align:center;cursor:pointer;font:inherit;color:var(--ink)" data-act="${act}" data-p="${pid}" ${extra}><div style="font-size:26px">${icon}</div><div class="strong" style="margin-top:6px">${label}</div></button>`;
+    const tile = (act, ic, label) => `<button class="card tile" data-act="${act}" data-p="${pid}">${icon(ic, 28)}<div class="strong">${label}</div></button>`;
     return `<div style="max-width:560px;margin:0 auto">
       <label class="field"><span>Project</span><select data-change="siteProject">${projOptions(pid, (x) => x.status === 'Active')}</select></label>
       <div class="card kpi"><div class="lbl">${esc(p.name)}</div><div class="val">${pct(c.progress)} complete</div>${bar(c.progress)}
         <div class="sub mt">${S().reports.filter((r) => r.project === pid && r.date === today()).length ? '✓ Daily report submitted today' : '<span class="neg">Daily report not yet submitted today</span>'}</div></div>
       <div class="grid mt" style="grid-template-columns:1fr 1fr">
-        ${tile('addReport', '📝', 'Daily report')}${tile('addChainage', '🛣️', 'Completed section')}
-        ${tile('newPlantLog', '🚜', 'Plant hours & fuel')}${tile('siteReq', '📦', 'Request material')}
-        ${tile('newIr', '🔍', 'Inspection request')}${tile('newIncident', '⚠️', 'Report incident')}
-        ${tile('sitePhoto', '📷', 'Site photo')}${tile('addRfi', '❓', 'Raise RFI')}
+        ${tile('addReport', 'clipboard', 'Daily report')}${tile('addChainage', 'road', 'Completed section')}
+        ${tile('newPlantLog', 'fuel', 'Plant hours & fuel')}${tile('siteReq', 'package', 'Request material')}
+        ${tile('newIr', 'eye', 'Inspection request')}${tile('newIncident', 'alert', 'Report incident')}
+        ${tile('sitePhoto', 'camera', 'Site photo')}${tile('addRfi', 'help', 'Raise RFI')}
       </div>
-      <p class="muted small mt">Designed for phones on site. Add this page to your home screen: browser menu → “Add to Home screen”.</p></div>`;
+      <p class="muted small mt">${window.jrcDesktop ? 'On site, open the web version of this page on a phone — the same screens are designed for one-handed use.' : 'Designed for phones on site. Add this page to your home screen: browser menu → “Add to Home screen”.'}</p></div>`;
   },
 };
 Actions.siteProject = (v) => { Pages.site.project = v; render(); };

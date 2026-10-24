@@ -86,7 +86,7 @@ Object.assign(Pages.projects, {
       { h: 'Rev', f: (d) => d.rev },
       { h: 'Date', f: (d) => fdate(d.date) },
       { h: 'Status', f: (d) => `<span class="badge b-${st[d.status] || 'muted'}">${d.status}</span>` },
-      { h: 'File', f: (d) => (d.file ? `<span class="small">📎 ${esc(d.file)}</span>` : '<span class="muted small">—</span>') },
+      { h: 'File', f: (d) => (d.file ? `<span class="small flex" style="gap:4px">${icon('clipboard', 14)}${esc(d.file)}</span>` : '<span class="muted small">—</span>') },
       { h: '', f: (d) => `<div class="btn-row"><button class="btn sm" data-act="newRevision" data-id="${d.id}">New rev</button>${d.status === 'For approval' ? `<button class="btn sm ok" data-act="docStatus" data-id="${d.id}" data-v="Approved">Approved</button><button class="btn sm" data-act="docStatus" data-id="${d.id}" data-v="Approved with comments">With comments</button>` : ''}</div>` },
     ], docs.sort((a, b) => b.date.localeCompare(a.date))), { flush: true, actions: `<button class="btn primary sm" data-act="newDoc" data-p="${p.id}">+ Document / transmittal</button>` }) +
       '<p class="muted small">This demo stores the file name and size only. A hosted version would store the files themselves.</p>';

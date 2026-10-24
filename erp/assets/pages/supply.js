@@ -225,7 +225,7 @@ Actions.stockTx = (d) => {
     { name: 'item', label: 'Item', type: 'select', options: itemOptions() },
     { name: 'qty', label: 'Quantity', type: 'number', step: 'any' },
     { name: 'from', label: 'From warehouse (issue / transfer)', type: 'select', options: whs },
-    { name: 'to', label: 'To warehouse (receipt / transfer)', type: 'select', options: whs },
+    { name: 'to', label: 'To warehouse (receipt / transfer)', type: 'select', options: options(S().warehouses.map((w) => [w.id, w.name]), t === 'Transfer' ? 'W-02' : 'W-01') },
     { name: 'project', label: 'Project (issue)', type: 'select', options: '<option value="">—</option>' + projOptions() },
     { name: 'ref', label: 'Reference', required: false, full: true },
   ];

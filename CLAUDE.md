@@ -5,7 +5,8 @@ This repo holds **JRC ERP**, a construction ERP for Jazallah Road Contracting (U
 **Before changing the ERP, read `docs/ERP-SPEC.md`.** It documents every module, the data model, how modules feed each other, the ledger posting rules, known technical debt and the roadmap. Do not reverse-engineer or rebuild the app; extend it.
 
 Key rules (details in the spec):
-- No build step. Script order in `erp/index.html` matters (`ext.js` and `app.js` load last).
+- No build step for the web app. Script order in `erp/index.html` matters (`ext.js`, `ux.js` and `app.js` load last). The desktop app in `desktop/` copies `erp/` at build time; never edit `desktop/app/`.
+- Use the UI helpers (`card`, `table`, `kpi(…, href)`, `icon()`, `openModal` + `alert()` for inline validation), not ad-hoc markup or emoji. Register new modules in `PAL_TABS`/`PAL_ACTIONS` too.
 - State lives in `S()`. Mutate it, then call `commit()`. Use the `data-act` / `data-change` delegation with `Actions.*`. Pages are `Pages.<route>.render(args)`.
 - "Today" is the fixed demo date `S().today`, so always use `today()`.
 - Any change to bank balances or stock must leave a record that `Ledger.build()` turns into a journal.

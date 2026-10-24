@@ -17,6 +17,10 @@ Static JavaScript/Electron, .NET, Go, Rust, PE/ELF and other built-in analyzers 
 
 **Run:** open `erp/index.html` in a browser, or serve it with `npx serve erp` or `python3 -m http.server -d erp`.
 
+**Desktop app:** installers for macOS (`.dmg`) and Windows (`.exe`) are built by GitHub Actions. Open *Actions → Desktop installers* and download the artifacts. See `desktop/README.md` for install steps and how to build locally.
+
+**Tips:** Ctrl/⌘ K opens the command palette (go anywhere, run actions, find records); `?` lists keyboard shortcuts; the sun/moon button switches light, dark or system theme.
+
 | Module | What it does |
 |---|---|
 | Dashboard / Approvals / Notifications | Company and site KPIs, role-filtered approvals inbox, 13 alert types with email digest |

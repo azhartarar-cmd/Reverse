@@ -1,0 +1,67 @@
+name: Desktop installers
+
+# Builds the JRC ERP desktop app: .dmg on macOS (Apple Silicon + Intel) and an .exe installer on Windows.
+# Every push that touches the app uploads the installers as workflow artifacts; pushing a tag like v1.0.0
+# also attaches them to a draft GitHub release.
+on:
+  push:
+    branches: ['main', 'claude/**']
+    paths: ['erp/**', 'desktop/**', 'docs/JRC-ERP-How-It-Works.pdf', '.github/workflows/desktop.yml']
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            script: dist:mac
+            files: desktop/dist/*.dmg
+            name: JRC-ERP-macOS
+          - os: windows-latest
+            script: dist:win
+            files: desktop/dist/*.exe
+            name: JRC-ERP-Windows
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: desktop
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+      - run: npm ci
+      - run: npm run ${{ matrix.script }}
+        env:
+          # Unsigned build: no Apple / Windows code-signing certificates are configured.
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }}
+          path: ${{ matrix.files }}
+          if-no-files-found: error
+          retention-days: 30
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: installers
+          merge-multiple: true
+      - name: Create draft release with installers
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" installers/* --repo "${GITHUB_REPOSITORY}" --draft \
+            --title "JRC ERP ${GITHUB_REF_NAME}" --notes "Desktop installers for macOS (.dmg) and Windows (.exe)."

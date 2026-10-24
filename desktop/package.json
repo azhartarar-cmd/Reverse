@@ -1,0 +1,113 @@
+{
+  "name": "jrc-erp",
+  "productName": "JRC ERP",
+  "version": "1.0.0",
+  "description": "Construction ERP for Jazallah Road Contracting",
+  "author": "Jazallah Road Contracting L.L.C.",
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "sync": "node scripts/sync.js",
+    "start": "npm run sync && electron .",
+    "dist:mac": "npm run sync && electron-builder --mac --publish never",
+    "dist:win": "npm run sync && electron-builder --win --publish never",
+    "dist:linux": "npm run sync && electron-builder --linux --publish never"
+  },
+  "devDependencies": {
+    "electron": "44.7.0",
+    "electron-builder": "26.16.1"
+  },
+  "build": {
+    "appId": "ae.jazallah.jrc-erp",
+    "productName": "JRC ERP",
+    "copyright": "\u00a9 2026 Jazallah Road Contracting L.L.C.",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "app/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "../docs/JRC-ERP-How-It-Works.pdf",
+        "to": "JRC-ERP-How-It-Works.pdf"
+      }
+    ],
+    "artifactName": "JRC-ERP-${version}-${os}-${arch}.${ext}",
+    "mac": {
+      "category": "public.app-category.business",
+      "icon": "build/icon.png",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ],
+      "identity": null
+    },
+    "dmg": {
+      "title": "JRC ERP ${version}",
+      "contents": [
+        {
+          "x": 140,
+          "y": 190
+        },
+        {
+          "x": 400,
+          "y": 190,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "win": {
+      "icon": "build/icon.png",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "JRC ERP",
+      "artifactName": "JRC-ERP-Setup-${version}.${ext}"
+    },
+    "linux": {
+      "icon": "build/icon.png",
+      "category": "Office",
+      "target": [
+        "AppImage"
+      ],
+      "syncDesktopName": true
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "azhartarar-cmd",
+        "repo": "Reverse",
+        "releaseType": "draft"
+      }
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/azhartarar-cmd/Reverse.git"
+  },
+  "desktopName": "jrc-erp.desktop"
+}

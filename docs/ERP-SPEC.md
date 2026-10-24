@@ -4,7 +4,7 @@
 
 - **Product:** construction ERP for **Jazallah Road Contracting L.L.C.** (UAE road contractor) and its sister company **Jazallah Plant Hire L.L.C.** (owns the fleet).
 - **Origin:** an original build modelled on the module list of all-in-one construction ERPs (FirstBit's public features page was the checklist). No third-party code or branding was copied. Line-by-line coverage: `docs/feature-coverage.md`.
-- **State (24 Oct 2026):** static front-end demo with 20 modules, data in browser `localStorage`, about 105 screens, all smoke-tested. Branch: `claude/exciting-franklin-kh9h0x`.
+- **State (24 Oct 2026):** static front-end app with 20 modules, data in browser `localStorage` (or the desktop app's data folder), about 105 screens, all smoke-tested. Also ships as a desktop app (Electron) with `.dmg` and `.exe` installers built by GitHub Actions. Branch: `claude/exciting-franklin-kh9h0x`.
 - **Sample data:** all fictional (companies, people, TRNs, IBANs, figures).
 
 ---
@@ -17,10 +17,13 @@
 | Smoke test (all routes, workflows, ledger reconciliation) | `node erp/tests/smoke.js <screenshot-dir>` (Playwright + Chromium) |
 | Rebuild the diagram PDF | `node docs/build-pdf.js <preview-dir>` → `docs/JRC-ERP-How-It-Works.pdf` (source `docs/erp-overview.html`) |
 | Reset data in the browser | Sidebar → *Reset demo data*, or Settings |
+| Desktop app (dev) | `cd desktop && npm install && npm start` |
+| Desktop installers | GitHub Actions → *Desktop installers* (`.github/workflows/desktop.yml`); see `desktop/README.md` |
 
 **A smoke test passes when:**
 - `routes checked 105` is printed.
 - No `PAGEERR`, `BADTEXT` (NaN/undefined/Infinity in the UI) or `EMPTY` lines.
+- `bankPerAccount` is `0/0` for every account (company view / group view).
 - `LEDGER after workflows` shows `tb: 0` and `bankDiff: 0` for ALL/JRC/JPH, `ar == arLive`, and `apGL == apLive`.
 - The `DIALOG Post 2026-10 payroll…` line is expected; it is a confirm prompt.
 
@@ -33,20 +36,25 @@ erp/
   index.html            shell (sidebar, topbar with search, bell, approvals pill, user switcher) + script tags
   manifest.webmanifest, sw.js, icon.svg   installable "Site app" (service worker only on http/https)
   assets/
-    styles.css          design tokens on :root, dark mode via prefers-color-scheme, components
+    styles.css          design tokens on :root; theme via [data-theme="light"|"dark"] or system; components, palette, print
+    fonts/              bundled Inter (OFL) — no external requests, works offline
+    icons.js            ICONS map + icon(name, size): original 24px line icons used by NAV, buttons, tiles
     data.js             window.buildSeed(): base sample company
     data-ext.js         wraps buildSeed() and adds road/accounting/compliance seed data
     core.js             Store (load/migrate/save/reset), formatters, lookups, Calc, UI helpers, Chart
     ledger.js           Ledger: derives the double-entry general ledger from operational records
     pages/*.js          one file per module: Pages.<route> + Actions.<name>
     pages/ext.js        patches existing pages (HR, Sales, CRM, Finance, Taxes, Settings) + access control
-    app.js              NAV, router, render(), commit(), event delegation, user switch
+    ux.js               UI prefs (theme, rail sidebar, closed nav groups), command palette, keyboard shortcuts, table sort/filter/CSV
+    app.js              NAV (with icon names), router, render(), commit(), event delegation, user switch
   tests/smoke.js        Playwright smoke test
 docs/  ERP-SPEC.md (this), feature-coverage.md, erp-overview.html, build-pdf.js, JRC-ERP-How-It-Works.pdf
+desktop/  Electron shell: main.js, preload.js, scripts/sync.js (copies ../erp → app/), build/icon.png|svg, package.json (electron-builder config)
+.github/workflows/desktop.yml  builds .dmg (macos-latest) and .exe (windows-latest); tag v* → draft release
 ```
 
 ### Script load order (it matters)
-`data.js → data-ext.js → core.js → ledger.js → dashboard → projects → projects-ext → supply → sales → finance → hr → equipment → admin → accounting → subcontracts → production → quality → contracts → assistant → ext.js → app.js`
+`data.js → data-ext.js → icons.js → core.js → ledger.js → dashboard → projects → projects-ext → supply → sales → finance → hr → equipment → admin → accounting → subcontracts → production → quality → contracts → assistant → ext.js → ux.js → app.js`
 
 - `ext.js` must load after the pages it patches.
 - `app.js` loads last because it calls `Store.load()` and `render()`.
@@ -64,12 +72,18 @@ docs/  ERP-SPEC.md (this), feature-coverage.md, erp-overview.html, build-pdf.js,
   - Buttons: `data-act="name"` calls `Actions.name(dataset, el)`.
   - Inputs/selects: `data-change="name"` calls `Actions.name(value, dataset, el)`.
   - Exceptions: a few `onchange="location.hash=…"` selects and `onsubmit` on the assistant form.
-- **Building blocks:** `card(title, body, {actions, flush})`, `kpi(label, value, sub)`, `table(cols, rows, {empty, foot})` with `cols = [{h, f: row => html, num, cls}]`, `badge(status)`, `bar(fraction)`, `options([[v, l]], sel)`, `projOptions(sel, filter)`, `openModal(title, fields, onSubmit, {submit, wide, html})`.
+- **Building blocks:** `card(title, body, {actions, flush})`, `kpi(label, value, sub, href)` (with `href` the tile is a link), `table(cols, rows, {empty, foot})` with `cols = [{h, f: row => html, num, cls}]`, `badge(status)`, `bar(fraction)`, `options([[v, l]], sel)`, `projOptions(sel, filter)`, `openModal(title, fields, onSubmit, {submit, wide, html})`.
 - **Formatting:**
   - `num(n, d)`, `aed(n)` (accepts a number or a pre-formatted string), `short(n)` (k/M), `pct(x)`.
   - Dates: `fdate(iso)`, `days(a, b)`, `daysTo(d)`, `addDays(d, n)`, `expiryBadge(d, warnDays)`.
   - Chainage: `ch(m)` → `"2+400"`, `parseCh("2+400")` → 2400.
 - **Escaping:** always pass user or data text through `esc()` inside HTML.
+- **Tables:** `table()` adds a filter box, row count and CSV button automatically at 8+ rows. Every header with text is sortable (ux.js parses numbers, `(negatives)`, k/M and dates); tables with `tr.group` rows keep their order; `tr.total` rows stay at the bottom.
+- **Validation:** `window.alert` is overridden. Inside an open form it shows an inline error banner (`.modal-err`); otherwise an error toast. So `alert(msg); return false;` in a submit handler is the validation pattern. `confirm()` stays native (desktop: native dialog).
+- **Icons and empty states:** `icon(name, size)` from icons.js (add new shapes to `ICONS`); `emptyState(msg)`. Avoid emoji in UI.
+- **UI preferences** (theme, rail sidebar, collapsed nav groups) live in `localStorage['jrc-ui']` through `UI.prefs`. These are per-device view settings, never business data.
+- **Keyboard:** Ctrl/⌘ K palette (`Palette`), `/` search, `?` shortcuts, `G` then a letter (`GOTO` map), Esc closes, Ctrl/⌘ Enter submits a form.
+- **Desktop detection:** `window.jrcDesktop` (from desktop/preload.js) exists only in the desktop app, with `platform`, `saveBackup(json)` and `openBackup()`. Backups use native dialogs there.
 - **IDs:** `nextId(prefix)` uses the global counter `S().seq`, so new IDs look like `PO-102`.
 - **"Today" is fixed at `S().today = '2026-10-24'`**, not the system clock, so the demo stays consistent. Use `today()` everywhere. Switching to the real date means changing the seed and how `today()` is derived.
 - **Charts:** `Chart.bars`, `Chart.line` (a series with a single point renders as a dot), `Chart.hbars`, `Chart.donut`, `Chart.legend`. All are inline SVG coloured with CSS variables `--c1..--c4`, `--bad`, etc.
@@ -83,7 +97,7 @@ docs/  ERP-SPEC.md (this), feature-coverage.md, erp-overview.html, build-pdf.js,
 ### Adding a module (checklist)
 1. Create `assets/pages/<name>.js` with `Pages.<route> = { title, render(args) { … } }` and its `Actions`.
 2. Add the `<script>` tag in `index.html` before `ext.js` / `app.js`.
-3. Add a NAV entry in `app.js` (`[route, icon, label]` within a group).
+3. Add a NAV entry in `app.js` (`[route, iconName, label]` within a group; the icon name must exist in `ICONS`), plus its tabs in `PAL_TABS` and any create-actions in `PAL_ACTIONS` (ux.js) so the command palette finds them.
 4. Add the route to `ROLE_ACCESS` in `ext.js` for each role that should see it. Administrator is `'*'`.
 5. If it owns new data, seed it in `data-ext.js`. `Store.migrate()` picks up new top-level keys automatically.
 6. If it moves money or stock, add ledger postings in `Ledger.build()` (section 5) and keep the reconciliation rules.
@@ -450,11 +464,11 @@ Routes are shown as `#/route/tab`. Calculations live in `Calc.*` (core.js plus t
 | Manual journals | as entered | | |
 | **Opening 31 Dec 2025** (`opening:true`) | each | Bank accounts and (JRC) 1200 are **back-solved** = live balance − movements; JRC 2300 opening gratuity; JPH 1500 cost / 1510 opening accumulated depreciation | 3000 capital (JRC 5,000,000; JPH 1,000,000); 3100 retained earnings = balancing figure |
 
-**Consolidation:** `Ledger.filter(J, 'ALL')` drops every journal flagged `ic`, which eliminates internal hire, its receivable/payable and the settlements in full.
+**Consolidation:** `Ledger.filter(J, 'ALL')` keeps only the **bank-account lines** of journals flagged `ic`. Internal hire revenue/cost (4100/5300) and the intercompany receivable/payable (1700/2700) are eliminated; the real cash moving between the two companies' bank accounts stays, so each bank account reconciles in the group view too.
 
 **Invariants the smoke test checks:**
 - the trial balance nets to 0 per entity and for the group;
-- GL bank (1010–1040) = Σ `S().bank`;
+- GL bank (1010–1040) = Σ `S().bank`, and **each bank account** matches its live balance in both the company view and the group view;
 - GL 1100 = Σ open invoice balances;
 - GL 2000 + 2050 = Σ open bills (amount + reval).
 
@@ -474,6 +488,23 @@ Routes are shown as `#/route/tab`. Calculations live in `Calc.*` (core.js plus t
 
 ---
 
+## 5.4 Desktop app (`desktop/`)
+- **Electron 44.7.0** and **electron-builder 26.16.1**, pinned. `main.js` loads `app/index.html` (a copy of `erp/` made by `npm run sync`).
+- **Security:** `contextIsolation`, `sandbox`, no `nodeIntegration`; CSP meta in `erp/index.html` (`'self'` only, inline scripts allowed for the existing `onchange` handlers).
+- **Links:** non-`file:` navigation and new windows (mailto:, https:) open in the system default app.
+- **Window and data:** window size/position is remembered in `userData/window-state.json`. App data is the page's `localStorage` in the Electron profile (macOS `~/Library/Application Support/JRC ERP`, Windows `%APPDATA%\JRC ERP`, Linux `~/.config/JRC ERP`). Single-instance lock.
+- **Menus:** File (Quick Find ⌘K, Save Backup ⌘S, Restore Backup ⌘O, Print ⌘P), Edit, View (theme ⌘⇧L, sidebar ⌘B, zoom, full screen), Go (⌘1–9 modules, Approvals, Notifications, Assistant, Settings), Window, Help (guide PDF from `resources/`, shortcuts, open data folder).
+  - Menus call into the page with `executeJavaScript` (`Palette.show()`, `Actions.*`, `location.hash`); keep those names stable.
+- **Downloads** (CSV/XML/SIF) show a native save dialog starting in Downloads.
+- **Builds:**
+  - CI on macos-latest (`.dmg` arm64 and x64) and windows-latest (NSIS `.exe`, user can pick the folder, desktop and Start-menu shortcuts). Unsigned: `CSC_IDENTITY_AUTO_DISCOVERY=false`, `mac.identity: null`.
+  - On Linux, `npm run dist:linux` builds an AppImage (verified here).
+  - A `.dmg` needs macOS; the Windows installer needs Windows or Wine.
+- **Signing (roadmap):** add certificates as secrets, remove the unsigned settings, and enable notarization.
+- **Auto-update (roadmap):** the `publish` config already points at GitHub releases (draft). Adding `electron-updater` would enable in-app updates.
+
+---
+
 ## 6. Roadmap: features not built yet, and how they would fit
 
 Grouped by priority. For each item, "Hooks" names the existing data and functions it should use.
@@ -483,6 +514,8 @@ Grouped by priority. For each item, "Hooks" names the existing data and function
 |---|---|
 | **Hosted backend + real auth** (Supabase is available in this environment) | One table per collection in section 3 (projects, boq_lines, chainage, stock_tx, …) and a `ledger_journals` table populated by DB functions mirroring section 5.2. Row-level security by role and company. Replace `Store` with an async data layer while keeping the `S()` shape so pages change little. Supabase Auth replaces `currentUser`; enforce `ROLE_ACCESS` and `APPROVER` server-side. |
 | **Audit trail** | Append-only `audit_log` (user, time, entity, id, before/after), written by `commit()` or server triggers. Show a history panel on records. |
+| **Signed desktop builds + auto-update** | Apple Developer ID + notarization, Windows code-signing certificate (secrets `CSC_LINK`, `CSC_KEY_PASSWORD`, `APPLE_*`); add `electron-updater` using the existing GitHub publish config. |
+| **Desktop data safety** | Automatic daily backup file in the user's Documents folder; restore prompt on startup if storage is empty. |
 | **Real-date mode** | `today()` from the clock. Seeds become opt-in demo data. |
 | **Data import** | CSV/Excel import for BOQs, employees, suppliers, items, opening trial balance. Opening balances then become real journals instead of back-solved ones. |
 | **Ledger-based VAT and cash flow** | Fix debt items 1 and 2: VAT boxes from 2100/1300 postings by tax date; cash flow from bank-account lines plus a forecast of open AR/AP by due date. |
@@ -570,4 +603,5 @@ Grouped by priority. For each item, "Hooks" names the existing data and function
 | Date | Change |
 |---|---|
 | 2026-10-24 | v1: 12 modules (projects/BOQ, procurement, warehouse, CRM, sales/billing, finance, VAT, HR/payroll, equipment, approvals, dashboard, settings) |
+| 2026-10-24 | v3: UI/UX refresh (design tokens, light/dark/system theme, icon set, bundled Inter font, rail sidebar with collapsible groups, command palette, keyboard shortcuts, sortable/filterable/exportable tables, clickable KPI tiles, dashboard greeting and quick actions, inline form errors, print styles); consolidation fix (cash legs of intercompany settlements kept, so per-account bank reconciles in the group view); desktop app (Electron) with .dmg/.exe CI builds |
 | 2026-10-24 | v2: accounting ledger (2 companies + consolidation), chainage, asphalt plant, QA/QC & HSE, plant logs/fuel/maintenance, subcontractors, bonds/permits/claims/LDs/escalation, documents, project cash flow, milestones, e-invoice XML, overhead allocation, multi-currency, corporate tax, notifications, assistant/search, roles, Site app (PWA), HR documents & camps; smoke test; this spec |

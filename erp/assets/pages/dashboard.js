@@ -18,25 +18,35 @@ Pages.dashboard = {
     const lowStock = s.items.filter((i) => Calc.stockQty(i.id) < i.reorder);
     const openRfis = s.rfis.filter((r) => r.status === 'Open');
 
+    const u = currentUser();
+    const hour = 9; // fixed demo clock
+    const quick = [
+      ['procurement', 'newReq', 'package', 'Requisition'], ['sales', 'newIpc', 'receipt', 'New IPC'], ['equipment', 'newPlantLog', 'fuel', 'Plant log'],
+      ['quality', 'newIncident', 'alert', 'Incident'], ['accounting', 'newJournal', 'book', 'Journal'],
+    ].filter(([m]) => canSee(m));
+    const due = Notify.list().filter((n) => n.sev === 'bad').length;
     return `
-      <div class="grid kpis">
-        ${kpi('Active projects', live.length, `${s.projects.filter((p) => p.status === 'Tender').length} at tender`)}
-        ${kpi('Revised contract value', aed(short(contract)), 'Active projects incl. approved VOs')}
-        ${kpi('Work done (earned)', aed(short(earned)), `${pct(earned / contract)} of contract`)}
-        ${kpi('Cost to date', aed(short(actual)), `Gross margin ${pct((earned - actual) / earned, 1)}`)}
-        ${kpi('Cash at bank', aed(short(cash)), `${s.bank.length} accounts`)}
-        ${kpi('Receivables', aed(short(ar)), `<span class="neg">${aed(short(overdue))} overdue</span>`)}
-        ${kpi('Payables', aed(short(ap)), `${openBills().length} open bills`)}
-        ${kpi('Sales pipeline', aed(short(pipeline)), `${s.leads.length} opportunities`)}
+      <div class="hero"><div><h2>Good ${hour < 12 ? 'morning' : 'afternoon'}, ${esc(u.name.split(' ')[0])}</h2>
+        <p>${new Date(today()).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} · ${due ? `<a href="#/notifications">${due} urgent alert${due > 1 ? 's' : ''}</a>` : 'no urgent alerts'} · ${pendingApprovals()} waiting for approval</p></div>
+        <div class="quick">${quick.map(([, act, ic, l]) => `<button class="btn" data-act="${act}">${icon(ic, 16)} ${l}</button>`).join('')}<button class="btn primary" data-act="palette">${icon('search', 16)} Find anything <span class="kbd" style="background:transparent;color:inherit;border-color:#ffffff66">${isMac ? '⌘' : 'Ctrl'} K</span></button></div></div>
+      <div class="grid kpis k4">
+        ${kpi('Active projects', live.length, `${s.projects.filter((p) => p.status === 'Tender').length} at tender`, '#/projects')}
+        ${kpi('Revised contract value', aed(short(contract)), 'Active projects incl. approved VOs', '#/projects')}
+        ${kpi('Work done (earned)', aed(short(earned)), `${pct(earned / contract)} of contract`, '#/sales/billing')}
+        ${kpi('Cost to date', aed(short(actual)), `Gross margin ${pct((earned - actual) / earned, 1)}`, '#/accounting/projects')}
+        ${kpi('Cash at bank', aed(short(cash)), `${s.bank.length} accounts`, '#/finance')}
+        ${kpi('Receivables', aed(short(ar)), `<span class="neg">${aed(short(overdue))} overdue</span>`, '#/finance/receivables')}
+        ${kpi('Payables', aed(short(ap)), `${openBills().length} open bills`, '#/finance/payables')}
+        ${kpi('Sales pipeline', aed(short(pipeline)), `${s.leads.length} opportunities`, '#/crm')}
       </div>
 
-      <div class="grid kpis mt">
-        ${kpi('Asphalt produced (7 days)', `${num(s.prodOrders.filter((o) => o.status === 'Produced' && daysTo(o.date) >= -7).reduce((a, o) => a + o.tons, 0))} t`)}
-        ${kpi('Open NCRs / failed tests', `${s.ncrs.filter((n) => n.status === 'Open').length} / ${s.labTests.filter((t) => !t.pass).length}`)}
-        ${kpi('Days without LTI', days(s.hseStats.lastLti, today()))}
-        ${kpi('Delay (LD) exposure', `<span class="neg">${aed(short(s.projects.reduce((a, p) => a + (p.status === 'Active' ? Calc.ld(p).exposure : 0), 0)))}</span>`)}
-        ${kpi('Permits / bonds expiring', `${s.permits.filter((p) => p.status === 'Active' && daysTo(p.expiry) <= 30).length} / ${s.bonds.filter((b) => b.status === 'Active' && daysTo(b.expiry) <= 60).length}`, '30 / 60 days')}
-        ${kpi('Plant deployed today', `${s.equipment.filter((e) => s.bookings.some((b) => b.eq === e.id && b.from <= today() && b.to >= today())).length} / ${s.equipment.length}`)}
+      <div class="grid kpis k6 mt">
+        ${kpi('Asphalt produced (7 days)', `${num(s.prodOrders.filter((o) => o.status === 'Produced' && daysTo(o.date) >= -7).reduce((a, o) => a + o.tons, 0))} t`, '', '#/production')}
+        ${kpi('Open NCRs / failed tests', `${s.ncrs.filter((n) => n.status === 'Open').length} / ${s.labTests.filter((t) => !t.pass).length}`, '', '#/quality/ncr')}
+        ${kpi('Days without LTI', days(s.hseStats.lastLti, today()), '', '#/quality/hse')}
+        ${kpi('Delay (LD) exposure', `<span class="neg">${aed(short(s.projects.reduce((a, p) => a + (p.status === 'Active' ? Calc.ld(p).exposure : 0), 0)))}</span>`, '', '#/contracts/claims')}
+        ${kpi('Permits / bonds expiring', `${s.permits.filter((p) => p.status === 'Active' && daysTo(p.expiry) <= 30).length} / ${s.bonds.filter((b) => b.status === 'Active' && daysTo(b.expiry) <= 60).length}`, '30 / 60 days', '#/contracts/permits')}
+        ${kpi('Plant deployed today', `${s.equipment.filter((e) => s.bookings.some((b) => b.eq === e.id && b.from <= today() && b.to >= today())).length} / ${s.equipment.length}`, '', '#/equipment/calendar')}
       </div>
       <div class="grid cols-2 mt">
         ${card('Cash flow (AED k) — actual vs forecast', Chart.bars(cf.map((m) => m.month), [

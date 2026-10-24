@@ -1,12 +1,12 @@
 // App shell: navigation, routing, access control, event delegation.
 const NAV = [
-  ['Overview', [['dashboard', '◧', 'Dashboard'], ['approvals', '✓', 'Approvals'], ['notifications', '🔔', 'Notifications'], ['assistant', '✦', 'Assistant']]],
-  ['Delivery', [['projects', '▤', 'Projects & BOQ'], ['site', '📱', 'Site app'], ['quality', '◎', 'QA/QC & HSE'], ['production', '▣', 'Asphalt Plant'], ['equipment', '⚙', 'Equipment']]],
-  ['Supply chain', [['procurement', '⇄', 'Procurement'], ['warehouse', '▦', 'Warehouse'], ['subcontracts', '⚒', 'Subcontractors']]],
-  ['Commercial', [['crm', '☏', 'CRM'], ['sales', '✎', 'Sales & Billing'], ['contracts', '§', 'Contracts & Compliance']]],
-  ['Finance', [['finance', '◔', 'Cash & Accounts'], ['accounting', '≡', 'Accounting'], ['vat', '%', 'Taxes']]],
-  ['People', [['hr', '☺', 'HR & Payroll']]],
-  ['System', [['settings', '⚑', 'Settings']]],
+  ['Overview', [['dashboard', 'dashboard', 'Dashboard'], ['approvals', 'check', 'Approvals'], ['notifications', 'bell', 'Notifications'], ['assistant', 'sparkle', 'Assistant']]],
+  ['Delivery', [['projects', 'folder', 'Projects & BOQ'], ['site', 'phone', 'Site app'], ['quality', 'shield', 'QA/QC & HSE'], ['production', 'factory', 'Asphalt Plant'], ['equipment', 'truck', 'Equipment']]],
+  ['Supply chain', [['procurement', 'swap', 'Procurement'], ['warehouse', 'box', 'Warehouse'], ['subcontracts', 'hammer', 'Subcontractors']]],
+  ['Commercial', [['crm', 'users', 'CRM'], ['sales', 'receipt', 'Sales & Billing'], ['contracts', 'scale', 'Contracts & Compliance']]],
+  ['Finance', [['finance', 'wallet', 'Cash & Accounts'], ['accounting', 'book', 'Accounting'], ['vat', 'percent', 'Taxes']]],
+  ['People', [['hr', 'user', 'HR & Payroll']]],
+  ['System', [['settings', 'settings', 'Settings']]],
 ];
 
 function route() {
@@ -15,11 +15,17 @@ function route() {
 }
 
 function renderNav(active) {
+  const closed = new Set(UI.prefs.closed);
+  const counts = { approvals: pendingApprovals(), notifications: Notify.unread().length };
   document.getElementById('nav').innerHTML = NAV.map(([group, links]) => {
     const vis = links.filter(([k]) => canSee(k));
-    return vis.length ? `<div class="nav-group">${group}</div>` + vis.map(([k, ico, label]) => `<a class="nav-link ${k === active ? 'active' : ''}" href="#/${k}"><span class="nav-ico">${ico}</span>${label}</a>`).join('') : '';
+    if (!vis.length) return '';
+    const isClosed = closed.has(group) && !vis.some(([k]) => k === active);
+    return `<button class="nav-group ${isClosed ? 'closed' : ''}" data-act="toggleGroup" data-g="${group}" aria-expanded="${!isClosed}">${group}${icon('chevron', 12)}</button>
+      <div class="nav-items ${isClosed ? 'closed' : ''}">${vis.map(([k, ic, label]) => `<a class="nav-link ${k === active ? 'active' : ''}" href="#/${k}" title="${label}">${icon(ic)}<span>${label}</span>${counts[k] ? `<b class="count">${counts[k]}</b>` : ''}</a>`).join('')}</div>`;
   }).join('');
 }
+const groupOf = (k) => (NAV.find(([, l]) => l.some(([x]) => x === k)) || [''])[0];
 
 function pendingApprovals() {
   const s = S();
@@ -45,18 +51,20 @@ function render() {
     const first = NAV.flatMap(([, l]) => l).find(([k]) => canSee(k));
     renderNav('');
     document.getElementById('page-title').textContent = 'No access';
-    view.innerHTML = `<div class="card empty">Your role (${esc(currentUser().role)}) cannot open this module.<div class="mt"><a class="btn primary" href="#/${first[0]}">Go to ${first[2]}</a></div></div>`;
+    document.getElementById('crumb').textContent = '';
+    view.innerHTML = `<div class="card empty">${icon('shield', 32)}<div>Your role (${esc(currentUser().role)}) cannot open this module.</div><a class="btn primary" href="#/${first[0]}">Go to ${first[2]}</a></div>`;
   } else {
     renderNav(key);
     const title = typeof p.title === 'function' ? p.title(args) : p.title;
     document.getElementById('page-title').textContent = title;
+    document.getElementById('crumb').textContent = groupOf(key);
     document.title = `${title} · JRC ERP`;
     view.innerHTML = p.render(args);
   }
   document.getElementById('approval-count').textContent = pendingApprovals();
   const unread = Notify.unread().length;
   const bell = document.getElementById('bell-count');
-  bell.textContent = unread;
+  bell.textContent = unread > 99 ? '99+' : unread;
   bell.style.display = unread ? '' : 'none';
   document.getElementById('sidebar').classList.remove('open');
 }
@@ -94,4 +102,6 @@ Actions.resetDemo = () => {
 window.addEventListener('hashchange', () => { render(); window.scrollTo(0, 0); });
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
 Store.load();
+UI.load();
+if (window.jrcDesktop) document.body.classList.add('desktop');
 render();
