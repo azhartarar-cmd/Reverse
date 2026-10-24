@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JRC ERP — Jazallah Road Contracting</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="logo">JRC</div>
+        <div>
+          <div class="brand-name">Jazallah Road</div>
+          <div class="brand-sub">Contracting ERP</div>
+        </div>
+      </div>
+      <nav id="nav"></nav>
+      <div class="sidebar-foot">
+        <button class="btn ghost sm" data-act="resetDemo">Reset demo data</button>
+      </div>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <button class="icon-btn menu-btn" data-act="toggleNav" aria-label="Menu">☰</button>
+        <h1 id="page-title">Dashboard</h1>
+        <div class="topbar-right">
+          <a href="#/approvals" class="pill" id="approval-pill">Approvals <span id="approval-count">0</span></a>
+          <div class="user"><span class="avatar">AT</span><span class="user-name">Admin</span></div>
+        </div>
+      </header>
+      <main id="view" class="view"></main>
+    </div>
+  </div>
+  <div id="modal-root"></div>
+  <div id="toast" class="toast"></div>
+
+  <script src="assets/data.js"></script>
+  <script src="assets/core.js"></script>
+  <script src="assets/pages/dashboard.js"></script>
+  <script src="assets/pages/projects.js"></script>
+  <script src="assets/pages/supply.js"></script>
+  <script src="assets/pages/sales.js"></script>
+  <script src="assets/pages/finance.js"></script>
+  <script src="assets/pages/hr.js"></script>
+  <script src="assets/pages/equipment.js"></script>
+  <script src="assets/pages/admin.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>
