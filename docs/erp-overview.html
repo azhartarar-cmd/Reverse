@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>JRC ERP — How it works</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  @page { size: A4 landscape; margin: 0; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Inter, system-ui, sans-serif; color: #1d2433; background: #fff; }
+  .page { width: 297mm; height: 210mm; padding: 11mm 13mm 9mm; page-break-after: always; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+  .page:last-child { page-break-after: auto; }
+  .top { display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #d97706; padding-bottom: 7px; margin-bottom: 9px; }
+  .logo { width: 30px; height: 30px; border-radius: 6px; background: #d97706; color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 11px; }
+  .top h1 { font-size: 19px; margin: 0; flex: 1; }
+  .top .n { font-size: 11px; color: #667085; }
+  .lead { font-size: 11.5px; color: #475467; margin: 0 0 6px; line-height: 1.5; }
+  svg { width: 100%; flex: 1; min-height: 0; }
+  svg text { font-family: Inter, system-ui, sans-serif; }
+  .foot { position: absolute; bottom: 5mm; left: 13mm; right: 13mm; font-size: 9px; color: #98a2b3; display: flex; justify-content: space-between; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; flex: 1; min-height: 0; }
+  .box { border: 1px solid #e4e7ec; border-radius: 8px; padding: 10px 12px; }
+  .box h3 { margin: 0 0 6px; font-size: 13px; }
+  table { width: 100%; border-collapse: collapse; font-size: 10.5px; }
+  th, td { text-align: left; padding: 5px 7px; border-bottom: 1px solid #e4e7ec; vertical-align: top; }
+  th { background: #f4f5f7; color: #475467; font-weight: 600; }
+  .legend { display: flex; gap: 14px; font-size: 10px; color: #475467; flex-wrap: wrap; margin-top: 4px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+  .cover { background: #1b2230; color: #fff; justify-content: center; padding: 22mm 24mm; }
+  .cover h1 { font-size: 40px; margin: 10px 0 6px; }
+  .cover .sub { font-size: 16px; color: #c9d1de; }
+  .cover .logo { width: 56px; height: 56px; font-size: 18px; border-radius: 10px; }
+  .toc { margin-top: 26px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 30px; font-size: 13px; color: #c9d1de; max-width: 620px; }
+  .toc b { color: #f59e0b; margin-right: 8px; }
+  .cover .note { position: absolute; bottom: 14mm; left: 24mm; right: 24mm; font-size: 10.5px; color: #98a2b3; }
+  .formula { font-family: ui-monospace, Menlo, monospace; font-size: 10.5px; background: #f4f5f7; border-radius: 6px; padding: 7px 9px; margin: 6px 0; line-height: 1.6; }
+  ul { margin: 4px 0; padding-left: 16px; font-size: 11px; line-height: 1.55; }
+</style>
+</head>
+<body>
+
+<!-- 1. Cover -->
+<section class="page cover">
+  <div class="logo">JRC</div>
+  <h1>JRC ERP — How it works</h1>
+  <div class="sub">Jazallah Road Contracting · one system for estimating, site delivery, supply chain, billing, finance, people and plant</div>
+  <div class="toc">
+    <div><b>1</b>Module map</div>
+    <div><b>5</b>Payment certificate maths</div>
+    <div><b>2</b>The project lifecycle</div>
+    <div><b>6</b>People &amp; plant</div>
+    <div><b>3</b>Win work → get paid</div>
+    <div><b>7</b>Approvals &amp; what updates what</div>
+    <div><b>4</b>Buy materials → pay suppliers</div>
+    <div><b>8</b>Under the hood</div>
+  </div>
+  <div class="note">All company details, people and figures in the system and in this guide are fictional samples. VAT and WPS outputs are illustrations to be checked with your accountant and bank.</div>
+</section>
+
+<!-- 2. Module map -->
+<section class="page">
+  <div class="top"><div class="logo">JRC</div><h1>1 · Module map</h1><span class="n">12 modules share one set of company data</span></div>
+  <p class="lead">Every module reads from and writes to the same records: a quantity booked on site, a delivery received in the store, or an hour of overtime feeds straight into costs, invoices, VAT and the dashboard. Nothing is typed twice.</p>
+  <svg id="d-map" viewBox="0 0 1000 540"></svg>
+  <div class="legend" id="legend-map"></div>
+  <div class="foot"><span>JRC ERP · How it works</span><span>2</span></div>
+</section>
+
+<!-- 3. Lifecycle -->
+<section class="page">
+  <div class="top"><div class="logo">JRC</div><h1>2 · The project lifecycle</h1><span class="n">From first enquiry to final account</span></div>
+  <p class="lead">A road project moves through six stages. Each stage is handled by one or more modules; the bottom row shows the records each stage creates.</p>
+  <svg id="d-life" viewBox="0 0 1000 520"></svg>
+  <div class="foot"><span>JRC ERP · How it works</span><span>3</span></div>
+</section>
+
+<!-- 4. Order to cash -->
+<section class="page">
+  <div class="top"><div class="logo">JRC</div><h1>3 · Win work → get paid</h1><span class="n">CRM · Sales · Projects · Billing · Cash</span></div>
+  <p class="lead">Follow the arrows: an opportunity becomes a priced quotation, then a project with a BOQ. Site progress against the BOQ produces the payment certificate (IPC), which becomes a tax invoice and finally cash in the bank.</p>
+  <svg id="d-o2c" viewBox="0 0 1000 560"></svg>
+  <div class="foot"><span>JRC ERP · How it works</span><span>4</span></div>
+</section>
+
+<!-- 5. Procure to pay -->
+<section class="page">
+  <div class="top"><div class="logo">JRC</div><h1>4 · Buy materials → pay suppliers</h1><span class="n">Procurement · Warehouse · Payables · VAT</span></div>
+  <p class="lead">Site asks for material, the office gets competing quotes, the winner gets a PO, the store receives it, and the material is issued to the project where it becomes cost. The supplier's bill flows to payables and its VAT becomes recoverable input tax.</p>
+  <svg id="d-p2p" viewBox="0 0 1000 560"></svg>
+  <div class="foot"><span>JRC ERP · How it works</span><span>5</span></div>
+</section>
+
+<!-- 6. IPC maths -->
+<section class="page">
+  <div class="top"><div class="logo">JRC</div><h1>5 · Payment certificate (IPC) maths</h1><span class="n">Worked example: IPC-2401-09, Al Wathba Industrial Access Road</span></div>
+  <div class="cols">
+    <div style="display:flex;flex-direction:column;min-height:0">
+      <svg id="d-ipc" viewBox="0 0 560 470"></svg>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="box"><h3>Where cumulative work comes from</h3>
+        <div class="formula">Earned value = Σ (BOQ done qty × sell rate)<br>Cumulative work = Earned value + approved VOs × % complete</div>
+        <ul><li>Site staff update <b>done quantity</b> per BOQ line.</li><li>Approved <b>variation orders</b> are added pro-rata to progress.</li><li>“New IPC from progress” takes this figure automatically.</li></ul></div>
+      <div class="box"><h3>Deductions (set in Settings)</h3>
+        <div class="formula">Retention = 10% × work this period<br>Advance recovery = 10% × work this period<br>Net = work − retention − advance recovery<br>VAT = 5% × net · Total due = net + VAT</div>
+        <ul><li>Retention is tracked as money held by the client and released at handover / end of defects liability.</li></ul></div>
+      <div class="box"><h3>Status path</h3>
+        <ul><li><b>Draft</b> → <b>Submitted</b> to the engineer → <b>Certified</b> (a tax invoice is issued automatically) → <b>Paid</b> when the receipt clears the invoice.</li></ul></div>
+      <div class="box"><h3>Revenue recognition (Finance)</h3>
+        <div class="formula">% complete = cost to date ÷ estimated total cost<br>Revenue to date = revised contract × % complete<br>Contract asset / (liability) = revenue − certified</div></div>
+    </div>
+  </div>
+  <div class="foot"><span>JRC ERP · How it works</span><span>6</span></div>
+</section>
+
+<!-- 7. People & plant -->
+<section class="page">
+  <div class="top"><div class="logo">JRC</div><h1>6 · People &amp; plant</h1><span class="n">HR &amp; Payroll · Equipment</span></div>
+  <p class="lead">Hours worked become payroll and a bank-ready WPS file; service years drive the end-of-service provision. Equipment is requested by site, checked for clashes, booked on the calendar and depreciated monthly.</p>
+  <svg id="d-pp" viewBox="0 0 1000 540"></svg>
+  <div class="foot"><span>JRC ERP · How it works</span><span>7</span></div>
+</section>
+
+<!-- 8. Approvals + what updates what -->
+<section class="page">
+  <div class="top"><div class="logo">JRC</div><h1>7 · Approvals &amp; what updates what</h1><span class="n">One inbox · one action, many effects</span></div>
+  <div class="cols">
+    <div style="display:flex;flex-direction:column;min-height:0">
+      <svg id="d-appr" viewBox="0 0 520 440"></svg>
+    </div>
+    <div>
+      <table>
+        <thead><tr><th style="width:38%">When you…</th><th>The ERP automatically…</th></tr></thead>
+        <tbody>
+          <tr><td>Update BOQ done quantity</td><td>Recalculates earned value, progress %, Gantt bars, cost variance, forecast margin and the next IPC amount</td></tr>
+          <tr><td>Award an RFQ</td><td>Creates a PO (pending approval); adds a new supplier to the register if needed</td></tr>
+          <tr><td>Post a goods received note</td><td>Adds stock to the chosen warehouse, marks PO received, creates a supplier bill in payables</td></tr>
+          <tr><td>Issue stock to a project</td><td>Reduces warehouse stock, adds to project consumption, triggers low-stock alert if below reorder level</td></tr>
+          <tr><td>Certify an IPC</td><td>Issues a tax invoice due in 30 days; it appears in receivables, statement of account and output VAT</td></tr>
+          <tr><td>Record a receipt</td><td>Increases the bank balance, reduces receivables, marks the IPC paid when fully settled</td></tr>
+          <tr><td>Pay a supplier bill</td><td>Reduces the bank balance and clears the payable</td></tr>
+          <tr><td>Edit timesheet hours</td><td>Recalculates overtime pay, payroll total and the WPS file</td></tr>
+          <tr><td>Approve annual leave</td><td>Deducts days from the employee's leave balance</td></tr>
+          <tr><td>Assign equipment</td><td>Books it on the calendar (blocking clashes) and updates fleet utilisation</td></tr>
+          <tr><td>Approve a variation order</td><td>Raises the revised contract value and future IPC amounts</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="foot"><span>JRC ERP · How it works</span><span>8</span></div>
+</section>
+
+<!-- 9. Under the hood -->
+<section class="page">
+  <div class="top"><div class="logo">JRC</div><h1>8 · Under the hood</h1><span class="n">Current demo version</span></div>
+  <div class="cols">
+    <div style="display:flex;flex-direction:column;min-height:0">
+      <svg id="d-tech" viewBox="0 0 520 450"></svg>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="box"><h3>How it runs</h3>
+        <ul><li>Plain HTML, CSS and JavaScript — no installation, no server, no build step.</li>
+          <li>Open <b>erp/index.html</b> in any modern browser.</li>
+          <li>Each screen is a page module; the address bar hash (e.g. <b>#/projects/P-2401/boq</b>) decides which one shows.</li></ul></div>
+      <div class="box"><h3>Where the data lives</h3>
+        <ul><li>First launch loads the sample company from <b>data.js</b>.</li>
+          <li>Every change is saved in the browser's local storage, so it survives a refresh.</li>
+          <li>Settings → <b>Export backup</b> downloads everything as one JSON file; <b>Import</b> restores it; <b>Reset</b> returns to the sample.</li></ul></div>
+      <div class="box"><h3>Limits of the demo</h3>
+        <ul><li>No logins — roles are shown but not enforced.</li>
+          <li>Data is per browser; colleagues don't see each other's changes.</li></ul></div>
+      <div class="box"><h3>Path to production</h3>
+        <ul><li>Move the data store to a hosted database (e.g. Supabase) with user accounts and role-based access.</li>
+          <li>Keep the same screens and calculations — only the store layer changes.</li>
+          <li>Add email notifications, a mobile layout for site staff and document attachments.</li></ul></div>
+    </div>
+  </div>
+  <div class="foot"><span>JRC ERP · How it works</span><span>9</span></div>
+</section>
+
+<script>
+const C = {
+  com: ['#2563eb', '#e8eefc'], prj: ['#d97706', '#fef3e2'], sup: ['#15803d', '#e7f6ec'], fin: ['#7c3aed', '#f1eafd'],
+  ppl: ['#0e7490', '#e0f4f7'], eqp: ['#475569', '#eef1f5'], sys: ['#64748b', '#f4f5f7'], hub: ['#1b2230', '#1b2230'],
+};
+const NS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs, parent, text) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (text != null) e.textContent = text;
+  parent.appendChild(e);
+  return e;
+}
+function wrap(str, maxChars) {
+  const words = str.split(' '); const lines = []; let cur = '';
+  words.forEach((w) => { if ((cur + ' ' + w).trim().length > maxChars) { lines.push(cur.trim()); cur = w; } else cur += ' ' + w; });
+  if (cur.trim()) lines.push(cur.trim());
+  return lines;
+}
+function arrowDefs(svg) {
+  const defs = el('defs', {}, svg);
+  [['ah', '#667085'], ['ahb', '#d97706']].forEach(([id, col]) => {
+    const m = el('marker', { id, viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse' }, defs);
+    el('path', { d: 'M0,0 L10,5 L0,10 z', fill: col }, m);
+  });
+}
+function anchor(n, tx, ty) {
+  const dx = tx - n.x, dy = ty - n.y;
+  if (!dx && !dy) return [n.x, n.y];
+  const t = Math.min(dx ? (n.w / 2) / Math.abs(dx) : Infinity, dy ? (n.h / 2) / Math.abs(dy) : Infinity);
+  return [n.x + dx * t, n.y + dy * t];
+}
+// nodes: {id,x,y,w,h,t,s,c,step}; edges: [from,to,label,{via,dash,bold,lx,ly}]
+function diagram(svgId, nodes, edges) {
+  const svg = document.getElementById(svgId);
+  arrowDefs(svg);
+  const map = {};
+  nodes.forEach((n) => { n.w = n.w || 165; n.h = n.h || 60; map[n.id] = n; });
+  const eg = el('g', {}, svg);
+  const lg = el('g', {}, svg);
+  edges.forEach(([a, b, label, o = {}]) => {
+    const A = map[a], B = map[b];
+    const via = o.via || [];
+    const first = via[0] || [B.x, B.y];
+    const last = via.length ? via[via.length - 1] : [A.x, A.y];
+    const p0 = anchor(A, first[0], first[1]);
+    const p1 = anchor(B, last[0], last[1]);
+    const pts = [p0, ...via, p1];
+    el('polyline', { points: pts.map((p) => p.join(',')).join(' '), fill: 'none', stroke: o.bold ? '#d97706' : '#98a2b3', 'stroke-width': o.bold ? 2.2 : 1.6, 'stroke-dasharray': o.dash ? '5 4' : '', 'marker-end': `url(#${o.bold ? 'ahb' : 'ah'})` }, eg);
+    if (label) {
+      let seg = 0, best = -1;
+      for (let i = 0; i < pts.length - 1; i++) { const l = Math.hypot(pts[i + 1][0] - pts[i][0], pts[i + 1][1] - pts[i][1]); if (l > best) { best = l; seg = i; } }
+      const lx = o.lx ?? (pts[seg][0] + pts[seg + 1][0]) / 2, ly = o.ly ?? (pts[seg][1] + pts[seg + 1][1]) / 2;
+      const lines = wrap(label, 22);
+      const w = Math.max(...lines.map((l) => l.length)) * 5.3 + 10, h = lines.length * 12 + 4;
+      el('rect', { x: lx - w / 2, y: ly - h / 2, width: w, height: h, rx: 4, fill: '#fff', stroke: '#e4e7ec' }, lg);
+      lines.forEach((l, i) => el('text', { x: lx, y: ly - h / 2 + 12 + i * 12 - 1, 'text-anchor': 'middle', 'font-size': 9.5, fill: '#475467', 'font-style': 'italic' }, lg, l));
+    }
+  });
+  nodes.forEach((n) => {
+    const [stroke, fill] = C[n.c || 'sys'];
+    const g = el('g', {}, svg);
+    const dark = n.c === 'hub';
+    el('rect', { x: n.x - n.w / 2, y: n.y - n.h / 2, width: n.w, height: n.h, rx: 9, fill, stroke, 'stroke-width': 1.6 }, g);
+    el('rect', { x: n.x - n.w / 2, y: n.y - n.h / 2, width: 5, height: n.h, rx: 2, fill: stroke }, g);
+    const subLines = n.s ? wrap(n.s, Math.floor((n.w - 18) / 5.4)) : [];
+    const titleLines = wrap(n.t, Math.floor((n.w - 18) / 6.8));
+    const total = titleLines.length * 14 + subLines.length * 12;
+    let y = n.y - total / 2 + 11;
+    titleLines.forEach((l) => { el('text', { x: n.x + 2, y, 'text-anchor': 'middle', 'font-size': 12, 'font-weight': 700, fill: dark ? '#fff' : '#1d2433' }, g, l); y += 14; });
+    subLines.forEach((l) => { el('text', { x: n.x + 2, y: y - 1, 'text-anchor': 'middle', 'font-size': 9.6, fill: dark ? '#c9d1de' : '#475467' }, g, l); y += 12; });
+    if (n.step) {
+      el('circle', { cx: n.x - n.w / 2 + 4, cy: n.y - n.h / 2 + 4, r: 10, fill: stroke }, g);
+      el('text', { x: n.x - n.w / 2 + 4, y: n.y - n.h / 2 + 7.5, 'text-anchor': 'middle', 'font-size': 10, 'font-weight': 700, fill: '#fff' }, g, n.step);
+    }
+  });
+  return svg;
+}
+function laneLabel(svgId, y, text, color) {
+  const svg = document.getElementById(svgId);
+  el('text', { x: 6, y, 'font-size': 10, 'font-weight': 700, fill: color, 'letter-spacing': 1 }, svg, text.toUpperCase());
+}
+function band(svgId, y, h, color) {
+  const svg = document.getElementById(svgId);
+  const r = el('rect', { x: 0, y, width: 1000, height: h, fill: color, rx: 8 }, svg);
+  svg.insertBefore(r, svg.firstChild.nextSibling);
+}
+
+// ---------- 1. Module map ----------
+(() => {
+  const mods = [
+    ['Dashboard', 'KPIs, cash flow and budget-vs-actual charts', 'sys'],
+    ['Approvals', 'One inbox for requisitions, POs, leave, plant', 'sys'],
+    ['Projects & BOQ', 'Estimate, schedule, site progress, cost control', 'prj'],
+    ['Equipment', 'Fleet, booking calendar, depreciation', 'eqp'],
+    ['Procurement', 'Requisition → RFQ → PO → GRN', 'sup'],
+    ['Warehouse', 'Stock in 3 stores, issues, transfers', 'sup'],
+    ['CRM', 'Opportunity pipeline to won work', 'com'],
+    ['Sales & Billing', 'Quotes, VOs, IPCs, invoices, statements', 'com'],
+    ['Cash & Accounts', 'Bank, AR/AP ageing, revenue, month-end', 'fin'],
+    ['VAT', 'Quarterly UAE VAT return', 'fin'],
+    ['HR & Payroll', 'Timesheets, payroll, WPS, gratuity', 'ppl'],
+    ['Settings', 'Company profile, users, approval rules', 'sys'],
+  ];
+  const nodes = [{ id: 'hub', x: 500, y: 270, w: 250, h: 96, t: 'Shared company data', s: 'Projects · BOQ lines · items & stock · suppliers · clients · employees · equipment · invoices', c: 'hub' }];
+  const edges = [];
+  mods.forEach(([t, s, c], i) => {
+    const a = (-90 + i * 30) * Math.PI / 180;
+    nodes.push({ id: 'm' + i, x: 500 + 395 * Math.cos(a), y: 270 + 222 * Math.sin(a), w: 182, h: 58, t, s, c });
+    edges.push(['m' + i, 'hub']);
+  });
+  diagram('d-map', nodes, edges);
+  document.getElementById('legend-map').innerHTML = [['prj', 'Delivery'], ['sup', 'Supply chain'], ['com', 'Commercial'], ['fin', 'Finance'], ['ppl', 'People'], ['eqp', 'Plant'], ['sys', 'Overview & system']]
+    .map(([k, l]) => `<span><i style="background:${C[k][0]}"></i>${l}</span>`).join('');
+})();
+
+// ---------- 2. Lifecycle ----------
+(() => {
+  const stages = [
+    ['Win', 'CRM · Sales', 'com', 'Opportunity, quotation & revisions'],
+    ['Plan', 'Projects & BOQ', 'prj', 'Project, BOQ with cost & sell rates, programme'],
+    ['Resource', 'Procurement · Equipment · HR', 'sup', 'Requisitions, POs, plant bookings, crews'],
+    ['Build', 'Projects · Warehouse', 'prj', 'Daily reports, RFIs, done qty, material issues'],
+    ['Bill', 'Sales & Billing', 'com', 'Variations, IPCs, tax invoices'],
+    ['Close & report', 'Finance · VAT', 'fin', 'Receipts, payments, VAT return, month-end'],
+  ];
+  const nodes = [], edges = [];
+  stages.forEach(([t, s, c, out], i) => {
+    const x = 85 + i * 166;
+    nodes.push({ id: 's' + i, x, y: 120, w: 140, h: 92, t, s, c, step: i + 1 });
+    nodes.push({ id: 'o' + i, x, y: 330, w: 140, h: 86, t: 'Creates', s: out, c: 'sys' });
+    edges.push(['s' + i, 'o' + i, null, { dash: true }]);
+    if (i) edges.push(['s' + (i - 1), 's' + i, null, { bold: true }]);
+  });
+  const svg = diagram('d-life', nodes, edges);
+  el('rect', { x: 15, y: 420, width: 970, height: 80, rx: 10, fill: '#1b2230' }, svg);
+  el('text', { x: 500, y: 452, 'text-anchor': 'middle', 'font-size': 14, 'font-weight': 700, fill: '#fff' }, svg, 'Dashboard & Approvals watch every stage');
+  el('text', { x: 500, y: 474, 'text-anchor': 'middle', 'font-size': 11, fill: '#c9d1de' }, svg, 'Live contract value, earned value, cost to date, cash, receivables, payables and items waiting for sign-off');
+  for (let i = 0; i < 6; i++) el('line', { x1: 85 + i * 166, x2: 85 + i * 166, y1: 373, y2: 420, stroke: '#98a2b3', 'stroke-dasharray': '3 3' }, svg);
+})();
+
+// ---------- 3. Order to cash ----------
+(() => {
+  const X = [100, 300, 500, 700, 900];
+  const nodes = [
+    { id: 'lead', x: X[0], y: 70, t: 'Opportunity', s: 'CRM: lead → qualified → proposal', c: 'com', step: 1 },
+    { id: 'quote', x: X[1], y: 70, t: 'Quotation', s: 'Priced from BOQ; Rev 0, Rev 1… kept', c: 'com', step: 2 },
+    { id: 'neg', x: X[2], y: 70, t: 'Negotiation', s: 'Value engineering, revised price', c: 'com' },
+    { id: 'won', x: X[3], y: 70, t: 'Won', s: 'Quotation marked won', c: 'com', step: 3 },
+    { id: 'proj', x: X[4], y: 70, t: 'Project + BOQ', s: 'BOQ lines with qty, sell & cost rates', c: 'prj', step: 4 },
+    { id: 'site', x: X[4], y: 260, t: 'Site execution', s: 'Daily reports, RFIs, Gantt', c: 'prj', step: 5 },
+    { id: 'prog', x: X[3], y: 260, t: 'BOQ progress', s: 'Done qty per line → earned value', c: 'prj', step: 6 },
+    { id: 'ipc', x: X[2], y: 260, t: 'Payment certificate (IPC)', s: 'Cumulative work less retention & advance', c: 'com', step: 7 },
+    { id: 'sub', x: X[1], y: 260, t: 'Submitted', s: "To client's engineer", c: 'com' },
+    { id: 'cert', x: X[0], y: 260, t: 'Certified', s: 'Engineer approves amount', c: 'com', step: 8 },
+    { id: 'inv', x: X[0], y: 440, t: 'Tax invoice', s: 'Issued automatically, due in 30 days', c: 'fin', step: 9 },
+    { id: 'rcpt', x: X[1], y: 440, t: 'Receipt', s: 'Recorded against invoice', c: 'fin', step: 10 },
+    { id: 'bank', x: X[2], y: 440, t: 'Bank balance', s: 'Cash on dashboard updates', c: 'fin' },
+    { id: 'soa', x: X[3], y: 440, t: 'Statement of account', s: 'Running balance per client', c: 'fin' },
+    { id: 'vat', x: X[4], y: 440, t: 'Output VAT', s: '5% on net → quarterly return', c: 'fin' },
+    { id: 'vo', x: X[2], y: 165, w: 150, h: 48, t: 'Variation orders', s: 'Approved VOs add value', c: 'com' },
+    { id: 'cost', x: X[3], y: 165, w: 150, h: 48, t: 'Cost control', s: 'Actual vs budget, EAC, margin', c: 'prj' },
+  ];
+  const b = { bold: true };
+  const edges = [
+    ['lead', 'quote', null, b], ['quote', 'neg', null, b], ['neg', 'won', null, b], ['won', 'proj', null, b],
+    ['proj', 'site', null, b], ['site', 'prog', null, b], ['prog', 'ipc', null, b], ['ipc', 'sub', null, b], ['sub', 'cert', null, b],
+    ['cert', 'inv', null, b], ['inv', 'rcpt', null, b], ['rcpt', 'bank', null, b],
+    ['vo', 'ipc'], ['prog', 'cost'],
+    ['inv', 'soa', 'listed on', { via: [[85, 525], [700, 525]], lx: 430 }],
+    ['inv', 'vat', 'output tax', { via: [[115, 545], [900, 545]], lx: 800 }],
+  ];
+  diagram('d-o2c', nodes, edges);
+})();
+
+// ---------- 4. Procure to pay ----------
+(() => {
+  const X = [100, 300, 500, 700, 900];
+  const nodes = [
+    { id: 'req', x: X[0], y: 70, t: 'Material requisition', s: 'Site engineer: item, qty, need-by date', c: 'sup', step: 1 },
+    { id: 'appr', x: X[1], y: 70, t: 'Approval', s: 'Approvals inbox', c: 'sys', step: 2 },
+    { id: 'rfq', x: X[2], y: 70, t: 'RFQ', s: 'Sent to 3 suppliers', c: 'sup', step: 3 },
+    { id: 'cmp', x: X[3], y: 70, t: 'Quote comparison', s: 'Rate, lead time, terms; lowest flagged', c: 'sup' },
+    { id: 'award', x: X[4], y: 70, t: 'Award', s: 'Best supplier selected', c: 'sup', step: 4 },
+    { id: 'po', x: X[4], y: 260, t: 'Purchase order', s: 'Qty × rate + 5% VAT', c: 'sup', step: 5 },
+    { id: 'poa', x: X[3], y: 260, t: 'PO approval', s: 'Approvals inbox', c: 'sys' },
+    { id: 'grn', x: X[2], y: 260, t: 'Goods received note', s: 'Full or partial delivery', c: 'sup', step: 6 },
+    { id: 'stock', x: X[1], y: 260, t: 'Warehouse stock ↑', s: 'Main yard or site store', c: 'sup' },
+    { id: 'issue', x: X[0], y: 260, t: 'Issue to project', s: 'Or transfer between stores', c: 'sup', step: 7 },
+    { id: 'cons', x: X[0], y: 440, t: 'Project consumption', s: 'Material cost per project', c: 'prj' },
+    { id: 'low', x: X[1], y: 440, t: 'Low-stock alert', s: 'Below reorder level → dashboard', c: 'sys' },
+    { id: 'bill', x: X[2], y: 440, t: 'Supplier bill', s: 'Payable, due per supplier terms', c: 'fin', step: 8 },
+    { id: 'pay', x: X[3], y: 440, t: 'Payment', s: 'From payment schedule', c: 'fin', step: 9 },
+    { id: 'bank', x: X[4], y: 440, t: 'Bank balance ↓', s: '', c: 'fin' },
+    { id: 'vin', x: X[3], y: 352, w: 150, h: 46, t: 'Input VAT', s: 'Recoverable on VAT return', c: 'fin' },
+  ];
+  const b = { bold: true };
+  const edges = [
+    ['req', 'appr', null, b], ['appr', 'rfq', null, b], ['rfq', 'cmp', null, b], ['cmp', 'award', null, b],
+    ['award', 'po', null, b], ['po', 'poa', null, b], ['poa', 'grn', null, b], ['grn', 'stock', null, b], ['stock', 'issue', null, b],
+    ['issue', 'cons', null, b], ['grn', 'bill', null, b], ['bill', 'pay', null, b], ['pay', 'bank', null, b],
+    ['stock', 'low', null, { dash: true }],
+    ['appr', 'po', 'Direct PO (skip RFQ)', { dash: true, via: [[300, 16], [994, 16], [994, 260]], lx: 640, ly: 16 }],
+    ['bill', 'vin', null, { dash: true }],
+  ];
+  diagram('d-p2p', nodes, edges);
+})();
+
+// ---------- 5. IPC waterfall ----------
+(() => {
+  const svg = document.getElementById('d-ipc');
+  const fmt = (n) => n.toLocaleString('en-US');
+  // stacked bar: cumulative work
+  el('text', { x: 10, y: 22, 'font-size': 12, 'font-weight': 700, fill: '#1d2433' }, svg, 'Cumulative work to date: AED 8,040,000');
+  const W = 540, prev = 6920000, cum = 8040000;
+  const pw = W * prev / cum;
+  el('rect', { x: 10, y: 34, width: pw, height: 34, rx: 5, fill: '#e4e7ec' }, svg);
+  el('rect', { x: 10 + pw, y: 34, width: W - pw, height: 34, rx: 5, fill: '#d97706' }, svg);
+  el('text', { x: 20, y: 56, 'font-size': 11, fill: '#475467' }, svg, 'Certified before (IPC-08): 6,920,000');
+  el('text', { x: 10 + pw + (W - pw) / 2, y: 56, 'text-anchor': 'middle', 'font-size': 11, 'font-weight': 700, fill: '#fff' }, svg, '1,120,000');
+  el('text', { x: 10 + pw + (W - pw) / 2, y: 84, 'text-anchor': 'middle', 'font-size': 10, fill: '#d97706' }, svg, 'this period');
+
+  // waterfall
+  el('text', { x: 10, y: 120, 'font-size': 12, 'font-weight': 700, fill: '#1d2433' }, svg, 'This certificate (AED)');
+  const steps = [
+    ['Work this period', 1120000, 0, '#d97706'],
+    ['Retention 10%', -112000, null, '#b42318'],
+    ['Advance recovery 10%', -112000, null, '#b42318'],
+    ['Net amount', 896000, 0, '#475569'],
+    ['VAT 5%', 44800, null, '#7c3aed'],
+    ['Total due', 940800, 0, '#15803d'],
+  ];
+  const top = 140, H = 260, max = 1150000;
+  const y = (v) => top + H - (v / max) * H;
+  const bw = 62, gap = (W - steps.length * bw) / steps.length;
+  let run = 0;
+  el('line', { x1: 10, x2: 10 + W, y1: y(0), y2: y(0), stroke: '#98a2b3' }, svg);
+  steps.forEach(([label, v, base, col], i) => {
+    const x = 10 + gap / 2 + i * (bw + gap);
+    let from, to;
+    if (base === 0) { from = 0; to = v; run = v; } else { from = run; to = run + v; run = to; }
+    const y1 = y(Math.max(from, to)), y2 = y(Math.min(from, to));
+    el('rect', { x, y: y1, width: bw, height: Math.max(2, y2 - y1), rx: 4, fill: col }, svg);
+    el('text', { x: x + bw / 2, y: y1 - 6, 'text-anchor': 'middle', 'font-size': 10.5, 'font-weight': 700, fill: col }, svg, (v < 0 ? '−' : '') + fmt(Math.abs(v)));
+    wrap(label, 12).forEach((l, k) => el('text', { x: x + bw / 2, y: y(0) + 16 + k * 12, 'text-anchor': 'middle', 'font-size': 10, fill: '#475467' }, svg, l));
+    if (i < steps.length - 1 && steps[i + 1][2] === null) {
+      el('line', { x1: x + bw, x2: x + bw + gap, y1: y(run), y2: y(run), stroke: '#98a2b3', 'stroke-dasharray': '3 3' }, svg);
+    }
+  });
+  el('text', { x: 10, y: 460, 'font-size': 10, fill: '#667085' }, svg, 'Retention is held by the client (tracked under Receivables) and released at handover / end of defects liability.');
+})();
+
+// ---------- 6. People & plant ----------
+(() => {
+  const X = [100, 300, 500, 700, 900];
+  const nodes = [
+    { id: 'emp', x: X[0], y: 75, t: 'Employee record', s: 'Basic, housing, transport, IBAN, project', c: 'ppl' },
+    { id: 'ts', x: X[1], y: 75, t: 'Monthly timesheet', s: 'Normal hrs, OT 125%, OT 150%, unpaid days', c: 'ppl' },
+    { id: 'pay', x: X[2], y: 75, t: 'Payroll run', s: 'Fixed pay + OT − deductions', c: 'ppl' },
+    { id: 'wps', x: X[3], y: 75, t: 'WPS SIF file', s: 'EDR line per employee + SCR total', c: 'ppl' },
+    { id: 'bank', x: X[4], y: 75, t: 'Salaries paid', s: 'Uploaded to the WPS agent bank', c: 'fin' },
+    { id: 'eosb', x: X[0], y: 200, t: 'End-of-service provision', s: '21 days/yr first 5 yrs, 30 after', c: 'ppl' },
+    { id: 'lv', x: X[1], y: 200, t: 'Leave request', s: 'Annual, sick, unpaid…', c: 'ppl' },
+    { id: 'lva', x: X[2], y: 200, t: 'Approval', s: 'Approvals inbox', c: 'sys' },
+    { id: 'lvb', x: X[3], y: 200, t: 'Leave balance updated', s: 'Unpaid days feed payroll', c: 'ppl' },
+
+    { id: 'er', x: X[0], y: 345, t: 'Equipment request', s: 'Site: type + dates', c: 'eqp' },
+    { id: 'chk', x: X[1], y: 345, t: 'Availability check', s: 'Free units of that type, no clashes', c: 'eqp' },
+    { id: 'asg', x: X[2], y: 345, t: 'Assign unit', s: 'Own fleet or hired plant', c: 'eqp' },
+    { id: 'cal', x: X[3], y: 345, t: 'Booking calendar', s: 'Week-by-week per machine', c: 'eqp' },
+    { id: 'util', x: X[4], y: 345, t: 'Utilisation', s: 'Deployed vs idle today', c: 'sys' },
+    { id: 'cost', x: X[0], y: 470, t: 'Purchase cost', s: 'Cost, life, salvage value', c: 'eqp' },
+    { id: 'dep', x: X[1], y: 470, t: 'Monthly depreciation', s: '(cost − salvage) ÷ life ÷ 12', c: 'fin' },
+    { id: 'nbv', x: X[2], y: 470, t: 'Net book value', s: 'Cost − accumulated', c: 'fin' },
+    { id: 'fv', x: X[3], y: 470, t: 'Fleet value', s: 'Equipment dashboard', c: 'sys' },
+    { id: 'hire', x: X[4], y: 470, t: 'Hire from subcontractor', s: 'When no unit is free', c: 'eqp' },
+  ];
+  const b = { bold: true };
+  const edges = [
+    ['emp', 'ts', null, b], ['ts', 'pay', null, b], ['pay', 'wps', null, b], ['wps', 'bank', null, b],
+    ['emp', 'eosb', null, { dash: true }], ['lv', 'lva', null, b], ['lva', 'lvb', null, b], ['lvb', 'pay', null, { dash: true }],
+    ['er', 'chk', null, b], ['chk', 'asg', null, b], ['asg', 'cal', null, b], ['cal', 'util', null, b],
+    ['cost', 'dep', null, b], ['dep', 'nbv', null, b], ['nbv', 'fv', null, b],
+    ['chk', 'hire', 'none free', { dash: true, via: [[300, 408], [900, 408]], lx: 760 }],
+  ];
+  const svg = diagram('d-pp', nodes, edges);
+  el('line', { x1: 0, x2: 1000, y1: 272, y2: 272, stroke: '#e4e7ec', 'stroke-width': 2 }, svg);
+  el('text', { x: 1000, y: 266, 'text-anchor': 'end', 'font-size': 10, 'font-weight': 700, fill: '#0e7490', 'letter-spacing': 1 }, svg, 'HR & PAYROLL ↑');
+  el('text', { x: 1000, y: 288, 'text-anchor': 'end', 'font-size': 10, 'font-weight': 700, fill: '#475569', 'letter-spacing': 1 }, svg, 'EQUIPMENT ↓');
+})();
+
+// ---------- 7. Approvals hub ----------
+(() => {
+  const nodes = [
+    { id: 'a1', x: 90, y: 60, w: 160, h: 54, t: 'Material requisitions', s: 'from site', c: 'sup' },
+    { id: 'a2', x: 90, y: 160, w: 160, h: 54, t: 'Purchase orders', s: 'from procurement', c: 'sup' },
+    { id: 'a3', x: 90, y: 260, w: 160, h: 54, t: 'Leave requests', s: 'from HR', c: 'ppl' },
+    { id: 'a4', x: 90, y: 360, w: 160, h: 54, t: 'Equipment requests', s: 'from site', c: 'eqp' },
+    { id: 'hub', x: 290, y: 210, w: 130, h: 90, t: 'Approvals inbox', s: 'Count shown on every screen', c: 'hub' },
+    { id: 'ok', x: 445, y: 140, w: 130, h: 60, t: 'Approved', s: 'Moves to next step', c: 'sup' },
+    { id: 'no', x: 445, y: 280, w: 130, h: 60, t: 'Rejected', s: 'Stops; requester sees status', c: 'sys' },
+  ];
+  const edges = [['a1', 'hub'], ['a2', 'hub'], ['a3', 'hub'], ['a4', 'hub'], ['hub', 'ok', null, { bold: true }], ['hub', 'no']];
+  const svg = diagram('d-appr', nodes, edges);
+  el('text', { x: 260, y: 425, 'text-anchor': 'middle', 'font-size': 10, fill: '#667085' }, svg, 'Approver per document and amount is set in Settings → Approval workflow');
+})();
+
+// ---------- 8. Tech ----------
+(() => {
+  const nodes = [
+    { id: 'html', x: 260, y: 40, w: 220, h: 48, t: 'index.html', s: 'Opened in the browser', c: 'sys' },
+    { id: 'app', x: 260, y: 130, w: 220, h: 54, t: 'app.js — router & menu', s: 'Reads #/page/tab from the address bar', c: 'sys' },
+    { id: 'pages', x: 260, y: 230, w: 220, h: 54, t: 'pages/*.js', s: 'One file per module: screens & actions', c: 'prj' },
+    { id: 'core', x: 260, y: 330, w: 220, h: 54, t: 'core.js', s: 'Data store, calculations, tables, charts', c: 'fin' },
+    { id: 'seed', x: 70, y: 410, w: 120, h: 50, t: 'data.js', s: 'Sample company', c: 'sup' },
+    { id: 'ls', x: 450, y: 410, w: 120, h: 50, t: 'Local storage', s: 'Saved in browser', c: 'ppl' },
+    { id: 'json', x: 450, y: 230, w: 120, h: 50, t: 'Backup .json', s: 'Export / import', c: 'eqp' },
+  ];
+  const edges = [
+    ['html', 'app', null, { bold: true }], ['app', 'pages', null, { bold: true }], ['pages', 'core', 'read & update', { bold: true }],
+    ['seed', 'core', 'first launch'], ['core', 'ls', 'every change'], ['ls', 'core', null, { dash: true, via: [[470, 360]] }],
+    ['core', 'json', null, { dash: true, via: [[450, 330]] }],
+  ];
+  diagram('d-tech', nodes, edges);
+})();
+</script>
+</body>
+</html>
