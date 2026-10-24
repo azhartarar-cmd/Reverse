@@ -19,17 +19,25 @@ Static JavaScript/Electron, .NET, Go, Rust, PE/ELF and other built-in analyzers 
 
 | Module | What it does |
 |---|---|
-| Dashboard / Approvals | Company KPIs, cash flow chart, budget vs actual, one inbox to approve requisitions, POs, leave and equipment requests |
-| Projects & BOQ | BOQ estimating with markup, progress by quantity, cost control (EAC, CPI, P&L by trade), Gantt with planned vs actual, daily site reports, RFIs |
-| Procurement | Requisitions → RFQ supplier comparison → award → PO approval → goods received note (updates stock and payables), spend analysis |
-| Warehouse | Multi-warehouse stock, receipts, issues and transfers, consumption by project, reorder alerts |
-| CRM | Opportunity pipeline (Lead → Negotiation → Won) |
-| Sales & Billing | Quotations with revisions, proforma, variation orders, IPCs from BOQ progress (retention, advance recovery, VAT), tax invoices, receipts, statement of account |
-| Cash & Accounts | Bank balances, cash forecast, aged receivables, payment schedule, cost-to-cost revenue recognition, month-end checklist |
-| VAT | Quarterly UAE VAT return summary (output, input and payable), CSV export |
-| HR & Payroll | Employees, timesheets with 125%/150% overtime, leave, payroll register, WPS SIF export, end-of-service gratuity provision |
-| Equipment | Fleet register (own and hired), weekly resource calendar with clash check, site requests, straight-line depreciation |
+| Dashboard / Approvals / Notifications | Company and site KPIs, role-filtered approvals inbox, 13 alert types with email digest |
+| Assistant | Ask questions about your data ("overdue invoices", "P-2401", "expiring visas"), how-to answers, search across all records (rule-based) |
+| Projects & BOQ | BOQ estimating with markup, cost control, Gantt, **chainage progress by layer** (updates BOQ), **project cash-flow S-curve**, site reports, RFIs, **document control** |
+| Site app | Phone screens for site staff: daily report, completed sections, plant hours & fuel, material request, inspection, incident, photo; installable web app |
+| QA/QC & HSE | Inspection requests, lab/field tests, NCRs, incidents, near misses, toolbox talks, days without LTI |
+| Asphalt Plant | Mix designs (BOMs) with cost per tonne, production orders consuming stock, delivery tickets, yield and wastage |
+| Equipment | Fleet, booking calendar, requests, **daily logs & fuel**, **service schedule**, depreciation |
+| Procurement / Warehouse | Requisition → RFQ comparison → PO (any currency) → GRN; multi-warehouse stock, transfers, consumption |
+| Subcontractors | Subcontracts, payment certificates with retention and back-charges, payables |
+| CRM / Sales & Billing | Pipeline, event calendar, interaction history; quotations, VOs, IPCs, **milestone billing**, tax invoices, **e-invoice XML**, email to client, statements |
+| Contracts & Compliance | Bonds and guarantees, permits and NOCs (expiry alerts), claims and EOT, LD exposure, price escalation |
+| Cash & Accounts | Cash forecast, AR/AP ageing, revenue recognition, overhead allocation, multi-currency revaluation, month-end close and period lock |
+| Accounting | Double-entry ledger generated from all modules, two companies (JRC + JPH plant hire) and consolidated group, TB, P&L, balance sheet, GL, journals, project P&L |
+| Taxes | Quarterly UAE VAT return summary, corporate tax estimate |
+| HR & Payroll | Timesheets, leave, payroll posting, WPS SIF, gratuity, **document expiry** (visa, Emirates ID, labour card, licences), labour camps |
+| Settings | Company, companies, users and role access matrix (switch user top-right), approval rules, notifications, backups |
 
-The code is plain HTML, CSS and JS with no build step. `assets/core.js` holds the store, calculations and UI helpers. Each module lives in `assets/pages/*.js`.
+See `docs/feature-coverage.md` for a line-by-line check against FirstBit's published module list, and `docs/JRC-ERP-How-It-Works.pdf` for diagrams.
+
+The code is plain HTML, CSS and JS with no build step. `assets/core.js` holds the store, calculations and UI helpers. `assets/ledger.js` builds the general ledger. Each module lives in `assets/pages/*.js`.
 
 All company details, people and figures are fictional samples. The WPS file layout and VAT figures are illustrations: check them with your bank and tax agent before relying on them.

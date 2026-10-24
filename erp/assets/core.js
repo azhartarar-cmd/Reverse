@@ -8,9 +8,27 @@ const Store = {
   load() {
     try {
       const raw = localStorage.getItem(this.key);
-      if (raw) { this.state = JSON.parse(raw); return; }
+      if (raw) { this.state = this.migrate(JSON.parse(raw)); return; }
     } catch (e) { /* storage unavailable: fall back to seed */ }
     this.state = buildSeed();
+  },
+  // Older saved data gets any collections added since it was saved, plus field defaults.
+  migrate(st) {
+    const seed = buildSeed();
+    Object.keys(seed).forEach((k) => { if (st[k] === undefined) st[k] = seed[k]; });
+    st.projects.forEach((p) => {
+      const sp = seed.projects.find((x) => x.id === p.id) || {};
+      ['company', 'length', 'width', 'ldPerDay', 'forecastEnd'].forEach((f) => { if (p[f] === undefined) p[f] = sp[f] ?? (f === 'company' ? 'JRC' : f === 'width' ? 12 : f === 'length' ? 1000 : f === 'ldPerDay' ? 0 : p.end); });
+    });
+    st.payables.forEach((b) => { if (b.paid === undefined) b.paid = false; if (!b.acc) b.acc = String(b.id).startsWith('SUB') ? '2050' : '2000'; });
+    st.employees.forEach((e) => { const se = seed.employees.find((x) => x.id === e.id); if (se) Object.keys(se).forEach((f) => { if (e[f] === undefined) e[f] = se[f]; }); });
+    st.equipment.forEach((e) => { const se = seed.equipment.find((x) => x.id === e.id); if (se) Object.keys(se).forEach((f) => { if (e[f] === undefined) e[f] = se[f]; }); });
+    st.leads.forEach((l) => { if (!l.history) l.history = []; });
+    st.items.forEach((i) => { if (!i.cat) i.cat = 'Material'; });
+    seed.items.forEach((i) => { if (!st.items.find((x) => x.id === i.id)) st.items.push(i); });
+    seed.bank.forEach((b) => { if (!st.bank.find((x) => x.id === b.id)) st.bank.push(b); });
+    st.bank.forEach((b) => { if (!b.entity) b.entity = 'JRC'; });
+    return st;
   },
   save() {
     try { localStorage.setItem(this.key, JSON.stringify(this.state)); } catch (e) { /* ignore */ }
@@ -22,6 +40,19 @@ const Store = {
 };
 const S = () => Store.state;
 const nextId = (prefix) => `${prefix}-${++S().seq}`;
+const openBills = () => S().payables.filter((p) => !p.paid);
+// Chainage in metres → "2+400"
+const ch = (m) => `${Math.floor(m / 1000)}+${String(Math.round(m % 1000)).padStart(3, '0')}`;
+const parseCh = (v) => { const m = String(v).trim().match(/^(\d+)\+(\d{1,3})$/); return m ? +m[1] * 1000 + +m[2] : Number(v); };
+const daysTo = (d) => days(today(), d);
+const expiryBadge = (d, warn = 60) => {
+  if (!d) return '—';
+  const n = daysTo(d);
+  if (n < 0) return `<span class="badge b-bad">Expired ${fdate(d)}</span>`;
+  if (n <= warn) return `<span class="badge b-warn">${fdate(d)} · ${n} d</span>`;
+  return fdate(d);
+};
+const fx = (cur) => (S().currencies.find((c) => c.code === (cur || 'AED')) || { rate: 1 }).rate;
 
 // ---------- formatting ----------
 const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -252,6 +283,24 @@ const Chart = {
       return s;
     }).join('');
     return `<div class="flex"><svg width="${size}" height="${size}" viewBox="0 0 160 160">${arcs}</svg>${Chart.legend(parts.map((p) => ({ ...p, name: `${p.name} (${pct(p.value / total)})` })), true)}</div>`;
+  },
+  // series: [{ name, color, values[], dash? }] (null values are skipped)
+  line(labels, series, { height = 240, fmt = short, marker = null } = {}) {
+    const W = 720, H = height, pl = 52, pb = 24, pt = 12;
+    const max = Math.max(1, ...series.flatMap((s) => s.values.filter((v) => v != null))) * 1.08;
+    const x = (i) => pl + (labels.length < 2 ? 0 : (i / (labels.length - 1)) * (W - pl - 12));
+    const y = (v) => pt + (H - pt - pb) * (1 - v / max);
+    let g = '';
+    for (let i = 0; i <= 4; i++) { const v = max * i / 4; g += `<line class="grid-line" x1="${pl}" x2="${W}" y1="${y(v)}" y2="${y(v)}"/><text x="${pl - 6}" y="${y(v) + 4}" text-anchor="end">${fmt(v)}</text>`; }
+    const step = Math.ceil(labels.length / 12);
+    labels.forEach((l, i) => { if (i % step === 0) g += `<text x="${x(i)}" y="${H - 6}" text-anchor="middle">${esc(l)}</text>`; });
+    if (marker != null) g += `<line x1="${x(marker)}" x2="${x(marker)}" y1="${pt}" y2="${H - pb}" stroke="var(--bad)" stroke-dasharray="4 4"/><text x="${x(marker) + 4}" y="${pt + 10}">today</text>`;
+    series.forEach((s) => {
+      const pts = s.values.map((v, i) => (v == null ? null : `${x(i)},${y(v)}`)).filter(Boolean);
+      if (pts.length > 1) g += `<polyline points="${pts.join(' ')}" fill="none" stroke="${s.color}" stroke-width="2.4" ${s.dash ? 'stroke-dasharray="6 5"' : ''}/>`;
+      else s.values.forEach((v, i) => { if (v != null) g += `<circle cx="${x(i)}" cy="${y(v)}" r="6" fill="${s.color}" stroke="var(--panel)" stroke-width="2"><title>${esc(s.name)}: ${fmt(v)}</title></circle>`; });
+    });
+    return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img">${g}</svg>` + Chart.legend(series);
   },
   legend(series, vertical = false) {
     return `<div class="legend" ${vertical ? 'style="flex-direction:column"' : ''}>${series.map((s) => `<span><i style="background:${s.color}"></i>${esc(s.name)}</span>`).join('')}</div>`;

@@ -1,0 +1,9 @@
+{
+  "name": "JRC ERP — Jazallah Road Contracting",
+  "short_name": "JRC ERP",
+  "start_url": "./index.html#/site",
+  "display": "standalone",
+  "background_color": "#1b2230",
+  "theme_color": "#1b2230",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

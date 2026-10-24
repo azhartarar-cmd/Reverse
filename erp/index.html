@@ -7,6 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/styles.css">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#1b2230">
 </head>
 <body>
   <div class="shell">
@@ -27,9 +29,11 @@
       <header class="topbar">
         <button class="icon-btn menu-btn" data-act="toggleNav" aria-label="Menu">☰</button>
         <h1 id="page-title">Dashboard</h1>
+        <form id="search" class="search"><input name="q" placeholder="Search or ask…" aria-label="Search or ask"></form>
         <div class="topbar-right">
+          <a href="#/notifications" class="bell" title="Notifications">🔔<span id="bell-count"></span></a>
           <a href="#/approvals" class="pill" id="approval-pill">Approvals <span id="approval-count">0</span></a>
-          <div class="user"><span class="avatar">AT</span><span class="user-name">Admin</span></div>
+          <div class="user"><span class="avatar" id="avatar">AD</span><select id="user-switch" class="user-name inline" data-change="switchUser" aria-label="Signed-in user"></select></div>
         </div>
       </header>
       <main id="view" class="view"></main>
@@ -39,15 +43,25 @@
   <div id="toast" class="toast"></div>
 
   <script src="assets/data.js"></script>
+  <script src="assets/data-ext.js"></script>
   <script src="assets/core.js"></script>
+  <script src="assets/ledger.js"></script>
   <script src="assets/pages/dashboard.js"></script>
   <script src="assets/pages/projects.js"></script>
+  <script src="assets/pages/projects-ext.js"></script>
   <script src="assets/pages/supply.js"></script>
   <script src="assets/pages/sales.js"></script>
   <script src="assets/pages/finance.js"></script>
   <script src="assets/pages/hr.js"></script>
   <script src="assets/pages/equipment.js"></script>
   <script src="assets/pages/admin.js"></script>
+  <script src="assets/pages/accounting.js"></script>
+  <script src="assets/pages/subcontracts.js"></script>
+  <script src="assets/pages/production.js"></script>
+  <script src="assets/pages/quality.js"></script>
+  <script src="assets/pages/contracts.js"></script>
+  <script src="assets/pages/assistant.js"></script>
+  <script src="assets/pages/ext.js"></script>
   <script src="assets/app.js"></script>
 </body>
 </html>

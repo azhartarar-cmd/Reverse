@@ -45,7 +45,7 @@ Pages.procurement = {
       { h: 'Project', f: (p) => p.project },
       { h: 'Item', f: (p) => esc(item(p.item).name) },
       { h: 'Qty', num: true, f: (p) => `${num(p.received)} / ${num(p.qty)} ${item(p.item).unit}` },
-      { h: 'Net', num: true, f: (p) => num(p.qty * p.rate) },
+      { h: 'Net', num: true, f: (p) => `${p.currency && p.currency !== 'AED' ? `<span class="muted small">${p.currency}</span> ` : ''}${num(p.qty * p.rate)}` },
       { h: 'VAT 5%', num: true, f: (p) => num(p.qty * p.rate * 0.05) },
       { h: 'Approval', f: (p) => badge(p.approval) },
       { h: 'Delivery', f: (p) => badge(p.status) },
@@ -76,7 +76,7 @@ Pages.procurement = {
       { h: 'Terms', f: (x) => x.terms },
       { h: 'Rating', f: (x) => `${'★'.repeat(Math.round(x.rating))}${'☆'.repeat(5 - Math.round(x.rating))} <span class="muted small">${x.rating}</span>` },
       { h: 'Open POs', num: true, f: (x) => s.pos.filter((p) => p.supplier === x.id && p.status !== 'Received').length },
-      { h: 'Payable', num: true, f: (x) => num(s.payables.filter((p) => p.supplier === x.id).reduce((a, p) => a + p.amount, 0)) },
+      { h: 'Payable', num: true, f: (x) => num(openBills().filter((p) => p.supplier === x.id).reduce((a, p) => a + p.amount, 0)) },
     ], s.suppliers), { flush: true, actions: '<button class="btn primary sm" data-act="newSupplier">+ Supplier</button>' });
   },
 };
@@ -139,7 +139,8 @@ Actions.newPo = () => openModal('Purchase order', [
   { name: 'project', label: 'Project', type: 'select', options: projOptions() },
   { name: 'item', label: 'Item', type: 'select', options: itemOptions() },
   { name: 'qty', label: 'Quantity', type: 'number', step: 'any' },
-  { name: 'rate', label: 'Unit rate (AED, excl. VAT)', type: 'number', step: 'any' },
+  { name: 'rate', label: 'Unit rate (excl. VAT)', type: 'number', step: 'any' },
+  { name: 'currency', label: 'Currency', type: 'select', options: options(S().currencies.map((c) => [c.code, `${c.code} (${num(c.rate, 4)})`]), 'AED') },
 ], (x) => { S().pos.unshift({ id: nextId('PO'), date: today(), received: 0, status: 'Open', approval: 'Pending', paid: false, ...x }); });
 
 Actions.receivePo = (d) => {
@@ -154,7 +155,7 @@ Actions.receivePo = (d) => {
     st[p.item] = (st[p.item] || 0) + x.qty;
     S().stockTx.unshift({ id: nextId('GRN'), date: today(), type: 'Receipt', item: p.item, qty: x.qty, from: p.supplier, to: x.wh, project: p.project, ref: p.id });
     const amt = x.qty * p.rate * 1.05;
-    S().payables.unshift({ id: nextId('BILL'), supplier: p.supplier, ref: p.id, date: today(), due: addDays(today(), parseInt(supplier(p.supplier)?.terms) || 30), amount: Math.round(amt) });
+    S().payables.unshift({ id: nextId('BILL'), supplier: p.supplier, ref: p.id, date: today(), due: addDays(today(), parseInt(supplier(p.supplier)?.terms) || 30), amount: Math.round(amt * fx(p.currency)), currency: p.currency || 'AED', fxAmount: Math.round(amt), acc: '2000', grn: true, paid: false });
   }, { submit: 'Post GRN' });
 };
 
@@ -189,18 +190,18 @@ Pages.warehouse = {
     return card('Stock movements', table([
       { h: 'Ref', f: (t) => t.id },
       { h: 'Date', f: (t) => fdate(t.date) },
-      { h: 'Type', f: (t) => `<span class="badge ${t.type === 'Receipt' ? 'b-ok' : t.type === 'Issue' ? 'b-warn' : 'b-info'}">${t.type}</span>` },
+      { h: 'Type', f: (t) => `<span class="badge ${t.type === 'Receipt' ? 'b-ok' : t.type === 'Issue' ? 'b-warn' : t.type === 'Production' ? 'b-muted' : 'b-info'}">${t.type}</span>` },
       { h: 'Item', f: (t) => esc(item(t.item).name) },
       { h: 'Qty', num: true, f: (t) => `${num(t.qty)} ${item(t.item).unit}` },
       { h: 'From', f: (t) => esc(t.type === 'Receipt' ? supplierName(t.from) : whName(t.from)), cls: 'wrap' },
-      { h: 'To', f: (t) => esc(t.type === 'Issue' ? t.project : whName(t.to)), cls: 'wrap' },
+      { h: 'To', f: (t) => esc(['Issue', 'Production'].includes(t.type) ? t.project : whName(t.to)), cls: 'wrap' },
       { h: 'Reference', f: (t) => esc(t.ref) },
     ], S().stockTx), { flush: true, actions: '<button class="btn primary sm" data-act="stockTx" data-t="Issue">+ Movement</button>' });
   },
   consumption() {
     const s = S();
     const rows = {};
-    s.stockTx.filter((t) => t.type === 'Issue').forEach((t) => {
+    s.stockTx.filter((t) => ['Issue', 'Production'].includes(t.type)).forEach((t) => {
       const k = t.project + '|' + t.item;
       rows[k] = rows[k] || { project: t.project, item: t.item, qty: 0 };
       rows[k].qty += t.qty;

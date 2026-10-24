@@ -3,7 +3,7 @@ Pages.hr = {
   month: '2026-10',
   render(args) {
     const tab = args[0] || 'employees';
-    return tabs('hr', [['employees', 'Employees'], ['timesheets', 'Timesheets & overtime'], ['leave', 'Leave'], ['payroll', 'Payroll & WPS'], ['eosb', 'End-of-service provision']], tab) + (this[tab] || this.employees).call(this);
+    return tabs('hr', [['employees', 'Employees'], ['timesheets', 'Timesheets & overtime'], ['leave', 'Leave'], ['payroll', 'Payroll & WPS'], ['eosb', 'End-of-service provision'], ['documents', 'Documents & expiry'], ['camps', 'Accommodation']], tab) + (this[tab] || this.employees).call(this);
   },
   employees() {
     const es = S().employees;
@@ -72,7 +72,7 @@ Pages.hr = {
         { h: 'Net pay', num: true, f: (r) => `<b>${num(r.p.gross, 2)}</b>` },
         { h: 'IBAN', f: (r) => `<span class="small muted">${r.e.iban}</span>` },
       ], rows, { foot: `<tr class="total"><td>Total</td><td class="num">${num(rows.reduce((a, r) => a + r.e.basic, 0))}</td><td class="num">${num(rows.reduce((a, r) => a + r.e.housing, 0))}</td><td class="num">${num(rows.reduce((a, r) => a + r.e.transport, 0))}</td><td class="num">${num(rows.reduce((a, r) => a + r.p.otPay, 0), 2)}</td><td class="num">(${num(rows.reduce((a, r) => a + r.p.deduction, 0), 2)})</td><td class="num">${num(total, 2)}</td><td></td></tr>` }),
-      { flush: true, actions: '<button class="btn sm" data-act="payrollCsv">Export payslips (CSV)</button><button class="btn primary sm" data-act="wps">Generate WPS SIF file</button>' }) +
+      { flush: true, actions: '<button class="btn sm" data-act="payrollCsv">Export payslips (CSV)</button><button class="btn sm" data-act="wps">Generate WPS SIF file</button>' + (S().payrollRuns.includes('2026-10') ? '<span class="badge b-ok">October posted</span>' : '<button class="btn primary sm" data-act="postPayroll">Post payroll to ledger</button>') }) +
       '</div><p class="muted small">The SIF export follows the common EDR/SCR record layout. Check field formats with your WPS agent bank before uploading.</p>';
   },
   eosb() {

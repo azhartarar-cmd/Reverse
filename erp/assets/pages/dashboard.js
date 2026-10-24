@@ -10,7 +10,7 @@ Pages.dashboard = {
     const cash = s.bank.reduce((a, b) => a + b.balance, 0);
     const ar = s.invoices.reduce((a, i) => a + Calc.invoice(i).open, 0);
     const overdue = s.invoices.filter((i) => Calc.invoice(i).open > 0 && Calc.invoice(i).overdue > 0).reduce((a, i) => a + Calc.invoice(i).open, 0);
-    const ap = s.payables.reduce((a, p) => a + p.amount, 0);
+    const ap = openBills().reduce((a, p) => a + p.amount, 0);
     const pipeline = s.leads.reduce((a, l) => a + l.value, 0);
 
     const cf = s.cashflow;
@@ -26,10 +26,18 @@ Pages.dashboard = {
         ${kpi('Cost to date', aed(short(actual)), `Gross margin ${pct((earned - actual) / earned, 1)}`)}
         ${kpi('Cash at bank', aed(short(cash)), `${s.bank.length} accounts`)}
         ${kpi('Receivables', aed(short(ar)), `<span class="neg">${aed(short(overdue))} overdue</span>`)}
-        ${kpi('Payables', aed(short(ap)), `${s.payables.length} open bills`)}
+        ${kpi('Payables', aed(short(ap)), `${openBills().length} open bills`)}
         ${kpi('Sales pipeline', aed(short(pipeline)), `${s.leads.length} opportunities`)}
       </div>
 
+      <div class="grid kpis mt">
+        ${kpi('Asphalt produced (7 days)', `${num(s.prodOrders.filter((o) => o.status === 'Produced' && daysTo(o.date) >= -7).reduce((a, o) => a + o.tons, 0))} t`)}
+        ${kpi('Open NCRs / failed tests', `${s.ncrs.filter((n) => n.status === 'Open').length} / ${s.labTests.filter((t) => !t.pass).length}`)}
+        ${kpi('Days without LTI', days(s.hseStats.lastLti, today()))}
+        ${kpi('Delay (LD) exposure', `<span class="neg">${aed(short(s.projects.reduce((a, p) => a + (p.status === 'Active' ? Calc.ld(p).exposure : 0), 0)))}</span>`)}
+        ${kpi('Permits / bonds expiring', `${s.permits.filter((p) => p.status === 'Active' && daysTo(p.expiry) <= 30).length} / ${s.bonds.filter((b) => b.status === 'Active' && daysTo(b.expiry) <= 60).length}`, '30 / 60 days')}
+        ${kpi('Plant deployed today', `${s.equipment.filter((e) => s.bookings.some((b) => b.eq === e.id && b.from <= today() && b.to >= today())).length} / ${s.equipment.length}`)}
+      </div>
       <div class="grid cols-2 mt">
         ${card('Cash flow (AED k) — actual vs forecast', Chart.bars(cf.map((m) => m.month), [
           { name: 'Inflow', color: 'var(--c3)', values: cf.map((m) => m.inflow) },
@@ -72,19 +80,19 @@ Pages.approvals = {
   render() {
     const s = S();
     const rows = [
-      ...s.requisitions.filter((r) => r.status === 'Pending').map((r) => ({
+      ...s.requisitions.filter((r) => r.status === 'Pending' && canApprove('requisitions')).map((r) => ({
         kind: 'Material requisition', id: r.id, by: r.by, date: r.date, coll: 'requisitions', field: 'status',
         what: `${num(r.qty)} ${item(r.item).unit} ${item(r.item).name} for ${r.project}`, value: r.qty * item(r.item).cost,
       })),
-      ...s.pos.filter((p) => p.approval === 'Pending').map((p) => ({
+      ...s.pos.filter((p) => p.approval === 'Pending' && canApprove('pos')).map((p) => ({
         kind: 'Purchase order', id: p.id, by: 'Mark Dela Cruz', date: p.date, coll: 'pos', field: 'approval',
         what: `${supplierName(p.supplier)} — ${num(p.qty)} ${item(p.item).unit} ${item(p.item).name}`, value: p.qty * p.rate,
       })),
-      ...s.leaves.filter((l) => l.status === 'Pending').map((l) => ({
+      ...s.leaves.filter((l) => l.status === 'Pending' && canApprove('leaves')).map((l) => ({
         kind: 'Leave request', id: l.id, by: emp(l.emp).name, date: l.from, coll: 'leaves', field: 'status',
         what: `${l.type} leave, ${l.days} days (${fdate(l.from)} – ${fdate(l.to)})`, value: null,
       })),
-      ...s.eqRequests.filter((r) => r.status === 'Pending').map((r) => ({
+      ...s.eqRequests.filter((r) => r.status === 'Pending' && canApprove('eqRequests')).map((r) => ({
         kind: 'Equipment request', id: r.id, by: r.by, date: r.from, coll: 'eqRequests', field: 'status',
         what: `${r.type} for ${r.project}, ${fdate(r.from)} – ${fdate(r.to)}`, value: null,
       })),

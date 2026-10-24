@@ -45,7 +45,7 @@ Pages.sales = {
   title: 'Sales & Billing',
   render(args) {
     const tab = args[0] || 'quotations';
-    return tabs('sales', [['quotations', 'Quotations'], ['variations', 'Variation orders'], ['billing', 'Progress billing (IPC)'], ['invoices', 'Invoices'], ['soa', 'Statement of account']], tab) + (this[tab] || this.quotations).call(this, args);
+    return tabs('sales', [['quotations', 'Quotations'], ['variations', 'Variation orders'], ['billing', 'Progress billing (IPC)'], ['milestones', 'Milestone billing'], ['invoices', 'Invoices'], ['soa', 'Statement of account']], tab) + (this[tab] || this.quotations).call(this, args);
   },
   quotations() {
     const qs = S().quotations;
@@ -197,6 +197,7 @@ Actions.receipt = (d) => {
     { name: 'bank', label: 'Into account', type: 'select', options: options(S().bank.map((b) => [b.id, b.name])) },
   ], (x) => {
     i.paid += x.amount / (1 + S().company.vatRate / 100);
+    S().receipts.push({ id: nextId('RC'), inv: i.id, date: today(), amount: x.amount, bank: x.bank });
     S().bank.find((b) => b.id === x.bank).balance += x.amount;
     const ipc = S().ipcs.find((p) => p.id === i.ipc);
     if (ipc && Calc.invoice(i).open < 1) ipc.status = 'Paid';
@@ -214,5 +215,5 @@ Actions.printInvoice = (d) => {
     <tr><td>${i.ipc ? `Interim payment certificate ${i.ipc} — net of retention and advance recovery` : 'Contract works'}</td><td class="num">${num(i.net, 2)}</td></tr>
     <tr><td>VAT @ ${c.vatRate}%</td><td class="num">${num(x.vat, 2)}</td></tr>
     <tr class="total"><td>Total</td><td class="num">${num(x.total, 2)}</td></tr></tbody></table>
-    <div class="btn-row mt"><button type="button" class="btn" onclick="window.print()">Print</button></div></div>` });
+    <div class="btn-row mt"><button type="button" class="btn" onclick="window.print()">Print</button><button type="button" class="btn" data-act="einvoice" data-id="${i.id}">Download e-invoice (XML)</button><button type="button" class="btn primary" data-act="emailInvoice" data-id="${i.id}">Email to client</button></div></div>` });
 };

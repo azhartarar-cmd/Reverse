@@ -2,7 +2,7 @@ Pages.finance = {
   title: 'Cash & Accounts',
   render(args) {
     const tab = args[0] || 'cash';
-    return tabs('finance', [['cash', 'Cash flow'], ['receivables', 'Receivables'], ['payables', 'Payables & payment schedule'], ['revenue', 'Revenue recognition'], ['close', 'Month-end close']], tab) + (this[tab] || this.cash).call(this);
+    return tabs('finance', [['cash', 'Cash flow'], ['receivables', 'Receivables'], ['payables', 'Payables & payment schedule'], ['revenue', 'Revenue recognition'], ['overheads', 'Overhead allocation'], ['currency', 'Multi-currency'], ['close', 'Month-end close']], tab) + (this[tab] || this.cash).call(this);
   },
   cash() {
     const s = S();
@@ -39,7 +39,7 @@ Pages.finance = {
       ], rows), { flush: true, actions: '<a class="btn sm" href="#/sales/invoices">Invoices</a>' }) + '</div>';
   },
   payables() {
-    const ps = S().payables.slice().sort((a, b) => a.due.localeCompare(b.due));
+    const ps = openBills().slice().sort((a, b) => a.due.localeCompare(b.due));
     const name = (p) => (supplier(p.supplier) ? supplier(p.supplier).name : p.supplier);
     const next30 = ps.filter((p) => days(today(), p.due) <= 30).reduce((a, p) => a + p.amount, 0);
     return `<div class="grid kpis">${kpi('Total payable', aed(short(ps.reduce((a, p) => a + p.amount, 0))))}${kpi('Due in 30 days', aed(short(next30)))}${kpi('Overdue', aed(short(ps.filter((p) => p.due < today()).reduce((a, p) => a + p.amount, 0))))}</div><div class="mt">` +
@@ -80,7 +80,7 @@ Pages.finance = {
       ['Update BOQ progress and cost-to-complete for every project', false], ['Recognise revenue / WIP adjustments', false], ['Review VAT control account', false],
     ];
     const done = s.closeChecklist.filter((c) => c[1]).length;
-    return card(`October 2026 close — ${done}/${s.closeChecklist.length} complete`, `${bar(done / s.closeChecklist.length, 'ok')}<div class="mt">` +
+    return `<div class="flex" style="margin-bottom:12px"><span class="muted">Books locked up to</span><b>${fdate(s.periodLock)}</b><span class="spacer"></span>${done === s.closeChecklist.length ? '<button class="btn primary sm" data-act="lockPeriod">Close October & lock period</button>' : '<span class="muted small">Complete all steps to lock October</span>'}</div>` + card(`October 2026 close — ${done}/${s.closeChecklist.length} complete`, `${bar(done / s.closeChecklist.length, 'ok')}<div class="mt">` +
       s.closeChecklist.map(([t, ok], i) => `<label class="flex" style="padding:8px 0;border-bottom:1px solid var(--line);cursor:pointer"><input type="checkbox" style="width:auto" data-change="closeStep" data-i="${i}" ${ok ? 'checked' : ''}><span class="${ok ? 'muted' : ''}" style="${ok ? 'text-decoration:line-through' : ''}">${t}</span></label>`).join('') + '</div>');
   },
 };
@@ -91,7 +91,7 @@ Actions.payBill = (d) => {
     { name: 'bank', label: 'From account', type: 'select', options: options(S().bank.map((b) => [b.id, `${b.name} (${aed(b.balance)})`])) },
   ], (x) => {
     S().bank.find((b) => b.id === x.bank).balance -= p.amount;
-    S().payables = S().payables.filter((y) => y !== p);
+    Object.assign(p, { paid: true, paidDate: today(), bank: x.bank });
     const po = S().pos.find((o) => o.id === p.ref);
     if (po) po.paid = true;
   }, { submit: `Pay ${aed(p.amount)}` });
@@ -99,8 +99,9 @@ Actions.payBill = (d) => {
 
 // ---------------- VAT ----------------
 Pages.vat = {
-  title: 'VAT',
+  title: 'Taxes',
   render(args) {
+    if (args[0] === 'ct') return Pages.vat.ctBar() + Pages.vat.ct();
     const s = S();
     const q = args[0] || '2026-Q3';
     const [y, qn] = q.split('-Q').map(Number);
@@ -117,7 +118,7 @@ Pages.vat = {
     const quarters = ['2026-Q1', '2026-Q2', '2026-Q3', '2026-Q4'];
     const box = (n, l, a, v) => `<tr><td>${n}</td><td>${l}</td><td class="num">${num(a, 2)}</td><td class="num">${v == null ? '' : num(v, 2)}</td></tr>`;
     return `<div class="flex" style="margin-bottom:16px"><span class="muted">Tax period</span>${quarters.map((x) => `<a class="btn sm ${x === q ? 'primary' : ''}" href="#/vat/${x}">${x.replace('-', ' ')}</a>`).join('')}
-        <span class="spacer"></span><button class="btn sm" data-act="exportVat" data-q="${q}">Export CSV</button></div>
+        <a class="btn sm" href="#/vat/ct">Corporate tax</a><span class="spacer"></span><button class="btn sm" data-act="exportVat" data-q="${q}">Export CSV</button></div>
       <div class="grid kpis">${kpi('Output VAT', aed(num(outVat)))}${kpi('Recoverable input VAT', aed(num(inVat)))}${kpi(payable >= 0 ? 'Net VAT payable' : 'Net VAT refundable', `<span class="${payable >= 0 ? 'neg' : 'pos'}">${aed(num(Math.abs(payable)))}</span>`, `Due 28 days after period end`)}</div>
       <div class="grid cols-2 mt">
         ${card(`VAT return summary — ${q.replace('-', ' ')}`, `<div class="table-wrap"><table><thead><tr><th>Box</th><th>Description</th><th class="num">Amount (AED)</th><th class="num">VAT (AED)</th></tr></thead><tbody>
@@ -154,3 +155,5 @@ Actions.exportVat = (d) => {
   const rows = [...t.querySelectorAll('tr')].map((tr) => [...tr.children].map((c) => c.textContent.trim()));
   download(`VAT-return-${d.q}.csv`, toCSV(rows), 'text/csv');
 };
+
+Actions.lockPeriod = () => { S().periodLock = '2026-10-31'; commit('October closed — postings up to 31 Oct are locked'); };

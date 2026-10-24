@@ -32,13 +32,16 @@ Pages.projects = {
         ${kpi('Estimate at completion', aed(short(c.eac)), `Budget ${short(c.budget)}`)}
         ${kpi('Forecast margin', pct(c.forecastMargin, 1), `Tender margin ${pct(c.margin, 1)}`)}
       </div><div class="mt">` +
-      tabs(`projects/${p.id}`, [['overview', 'Cost control'], ['boq', 'BOQ & progress'], ['gantt', 'Schedule'], ['reports', 'Site reports & RFIs'], ['billing', 'Variations & billing']], tab);
+      tabs(`projects/${p.id}`, [['overview', 'Cost control'], ['boq', 'BOQ & progress'], ['gantt', 'Schedule'], ['chainage', 'Chainage'], ['cashflow', 'Cash flow plan'], ['reports', 'Site reports & RFIs'], ['documents', 'Documents'], ['billing', 'Variations & billing']], tab);
     const body = {
       overview: () => this.overview(p, c),
       boq: () => this.boq(p),
       gantt: () => this.gantt(p),
       reports: () => this.reports(p),
       billing: () => this.billing(p),
+      chainage: () => this.chainage(p),
+      cashflow: () => this.cashflow(p),
+      documents: () => this.documents(p),
     }[tab] || (() => '');
     return head + body() + '</div>';
   },

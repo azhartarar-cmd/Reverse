@@ -2,7 +2,7 @@ Pages.equipment = {
   title: 'Equipment',
   render(args) {
     const tab = args[0] || 'fleet';
-    return tabs('equipment', [['fleet', 'Fleet register'], ['calendar', 'Resource calendar'], ['requests', 'Equipment requests'], ['depreciation', 'Depreciation']], tab) + (this[tab] || this.fleet).call(this);
+    return tabs('equipment', [['fleet', 'Fleet register'], ['calendar', 'Resource calendar'], ['requests', 'Equipment requests'], ['logs', 'Daily logs & fuel'], ['maintenance', 'Maintenance'], ['depreciation', 'Depreciation']], tab) + (this[tab] || this.fleet).call(this);
   },
   current(eqId) {
     return S().bookings.find((b) => b.eq === eqId && b.from <= today() && b.to >= today());
@@ -90,3 +90,65 @@ Actions.assignEq = (d) => {
   r.status = 'Approved';
   commit(`${d.eq} assigned to ${r.project}`);
 };
+
+Object.assign(Pages.equipment, {
+  logs() {
+    const s = S();
+    const logs = s.plantLogs.slice().sort((a, b) => b.date.localeCompare(a.date));
+    const by = {};
+    logs.forEach((l) => { const o = by[l.eq] || (by[l.eq] = { h: 0, f: 0 }); o.h += l.hours; o.f += l.fuel; });
+    const eqName = (id) => s.equipment.find((e) => e.id === id)?.name || id;
+    const projCost = {};
+    logs.forEach((l) => { const e = s.equipment.find((x) => x.id === l.eq); projCost[l.project] = (projCost[l.project] || 0) + l.hours * (e?.rate || 0); });
+    return `<div class="grid cols-2">` + card('Fuel efficiency by machine', table([
+      { h: 'Equipment', f: ([id]) => esc(eqName(id)) },
+      { h: 'Hours', num: true, f: ([, o]) => num(o.h) },
+      { h: 'Fuel (l)', num: true, f: ([, o]) => num(o.f) },
+      { h: 'l / hour', num: true, f: ([, o]) => num(o.f / o.h, 1) },
+    ], Object.entries(by)), { flush: true }) + card('Plant cost charged to projects (logged hours × internal rate)', table([
+      { h: 'Project', f: ([p]) => esc(projLabel(p)), cls: 'wrap' },
+      { h: 'Cost (AED)', num: true, f: ([, v]) => num(v) },
+    ], Object.entries(projCost)), { flush: true }) + '</div><div class="mt">' +
+      card('Daily plant logs', table([
+        { h: 'Date', f: (l) => fdate(l.date) },
+        { h: 'Equipment', f: (l) => esc(eqName(l.eq)) },
+        { h: 'Project', f: (l) => l.project },
+        { h: 'Operator', f: (l) => esc(emp(l.operator)?.name || '—') },
+        { h: 'Hours', num: true, f: (l) => l.hours },
+        { h: 'Fuel (l)', num: true, f: (l) => num(l.fuel) },
+        { h: 'Cost', num: true, f: (l) => num(l.hours * (s.equipment.find((e) => e.id === l.eq)?.rate || 0)) },
+      ], logs.slice(0, 120)), { flush: true, actions: '<button class="btn primary sm" data-act="newPlantLog">+ Daily log</button>' }) + '</div>';
+  },
+  maintenance() {
+    const own = S().equipment.filter((e) => e.nextService);
+    return card('Service schedule (hour meter)', table([
+      { h: 'Equipment', f: (e) => esc(e.name) },
+      { h: 'Hour meter', num: true, f: (e) => num(e.meter) },
+      { h: 'Next service at', num: true, f: (e) => num(e.nextService) },
+      { h: 'Hours left', num: true, f: (e) => { const left = e.nextService - e.meter; return `<span class="${left <= 0 ? 'neg strong' : left <= 50 ? 'neg' : ''}">${num(left)}</span>`; } },
+      { h: 'Interval', num: true, f: (e) => `${e.serviceHours} h` },
+      { h: '', f: (e) => `<button class="btn sm" data-act="serviceDone" data-id="${e.id}">Service done</button>` },
+    ], own), { flush: true }) + '<p class="muted small">Hour meters advance automatically from daily plant logs.</p>';
+  },
+});
+
+Actions.newPlantLog = (d = {}) => openModal('Daily plant log', [
+  { name: 'eq', label: 'Equipment', type: 'select', options: options(S().equipment.map((e) => [e.id, e.name])), full: true },
+  { name: 'project', label: 'Project', type: 'select', options: projOptions(d.p, (p) => p.status === 'Active'), full: true },
+  { name: 'date', label: 'Date', type: 'date', value: today() },
+  { name: 'operator', label: 'Operator', type: 'select', options: '<option value="">—</option>' + options(S().employees.filter((e) => e.dept === 'Plant' || /Foreman|Operator/.test(e.role)).map((e) => [e.id, e.name])) },
+  { name: 'hours', label: 'Working hours', type: 'number', step: '0.5', value: 9 },
+  { name: 'fuel', label: 'Fuel issued (litres)', type: 'number', value: 0 },
+  { name: 'wh', label: 'Fuel issued from', type: 'select', options: options(S().warehouses.map((w) => [w.id, w.name]), 'W-02') },
+], (x) => {
+  if (x.fuel) {
+    const st = S().stock[x.wh] || (S().stock[x.wh] = {});
+    if ((st['I-10'] || 0) < x.fuel) { alert(`Only ${num(st['I-10'] || 0)} l diesel in ${whName(x.wh)}.`); return false; }
+    st['I-10'] -= x.fuel;
+    S().stockTx.unshift({ id: nextId('GIN'), date: x.date, type: 'Issue', item: 'I-10', qty: x.fuel, from: x.wh, to: '', project: x.project, ref: `Fuel ${x.eq}` });
+  }
+  const e = S().equipment.find((q) => q.id === x.eq);
+  if (e.meter != null) e.meter += x.hours;
+  S().plantLogs.push({ id: nextId('PL'), date: x.date, eq: x.eq, project: x.project, hours: x.hours, fuel: x.fuel, operator: x.operator, note: '' });
+}, { submit: 'Save log' });
+Actions.serviceDone = (d) => { const e = S().equipment.find((x) => x.id === d.id); e.nextService = e.meter + e.serviceHours; commit(`${e.id} serviced — next at ${num(e.nextService)} h`); };

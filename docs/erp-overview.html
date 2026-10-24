@@ -21,8 +21,8 @@
   .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; flex: 1; min-height: 0; }
   .box { border: 1px solid #e4e7ec; border-radius: 8px; padding: 10px 12px; }
   .box h3 { margin: 0 0 6px; font-size: 13px; }
-  table { width: 100%; border-collapse: collapse; font-size: 10.5px; }
-  th, td { text-align: left; padding: 5px 7px; border-bottom: 1px solid #e4e7ec; vertical-align: top; }
+  table { width: 100%; border-collapse: collapse; font-size: 9.6px; }
+  th, td { text-align: left; padding: 3.5px 7px; border-bottom: 1px solid #e4e7ec; vertical-align: top; }
   th { background: #f4f5f7; color: #475467; font-weight: 600; }
   .legend { display: flex; gap: 14px; font-size: 10px; color: #475467; flex-wrap: wrap; margin-top: 4px; }
   .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
@@ -46,20 +46,22 @@
   <div class="sub">Jazallah Road Contracting · one system for estimating, site delivery, supply chain, billing, finance, people and plant</div>
   <div class="toc">
     <div><b>1</b>Module map</div>
-    <div><b>5</b>Payment certificate maths</div>
+    <div><b>7</b>Road operations</div>
     <div><b>2</b>The project lifecycle</div>
-    <div><b>6</b>People &amp; plant</div>
+    <div><b>8</b>Accounting &amp; group companies</div>
     <div><b>3</b>Win work → get paid</div>
-    <div><b>7</b>Approvals &amp; what updates what</div>
+    <div><b>9</b>Approvals, alerts &amp; what updates what</div>
     <div><b>4</b>Buy materials → pay suppliers</div>
-    <div><b>8</b>Under the hood</div>
+    <div><b>10</b>Under the hood</div>
+    <div><b>5</b>Payment certificate maths</div>
+    <div><b>6</b>People &amp; plant</div>
   </div>
   <div class="note">All company details, people and figures in the system and in this guide are fictional samples. VAT and WPS outputs are illustrations to be checked with your accountant and bank.</div>
 </section>
 
 <!-- 2. Module map -->
 <section class="page">
-  <div class="top"><div class="logo">JRC</div><h1>1 · Module map</h1><span class="n">12 modules share one set of company data</span></div>
+  <div class="top"><div class="logo">JRC</div><h1>1 · Module map</h1><span class="n">20 modules share one set of company data</span></div>
   <p class="lead">Every module reads from and writes to the same records: a quantity booked on site, a delivery received in the store, or an hour of overtime feeds straight into costs, invoices, VAT and the dashboard. Nothing is typed twice.</p>
   <svg id="d-map" viewBox="0 0 1000 540"></svg>
   <div class="legend" id="legend-map"></div>
@@ -121,12 +123,29 @@
   <div class="foot"><span>JRC ERP · How it works</span><span>7</span></div>
 </section>
 
+<!-- Road operations -->
+<section class="page">
+  <div class="top"><div class="logo">JRC</div><h1>7 · Road operations</h1><span class="n">Chainage · Asphalt plant · Plant logs · QA/QC · Compliance</span></div>
+  <p class="lead">The road-specific modules feed the same records as everything else: a section recorded by chainage raises BOQ progress and the next payment certificate; asphalt production consumes stock; plant hours become project cost; failed tests and expiring permits raise alerts.</p>
+  <svg id="d-road" viewBox="0 0 1000 540"></svg>
+  <div class="foot"><span>JRC ERP · How it works</span><span>8</span></div>
+</section>
+
+<!-- Accounting -->
+<section class="page">
+  <div class="top"><div class="logo">JRC</div><h1>8 · Accounting &amp; group companies</h1><span class="n">Every transaction posts itself to the ledger</span></div>
+  <p class="lead">Nobody keys journals for day-to-day work: invoices, receipts, bills, payroll, stock issues, depreciation and plant hire each create a balanced double entry. Two companies keep separate books — Jazallah Road Contracting and Jazallah Plant Hire (which owns the fleet and hires it to JRC) — and the group view removes the internal hire.</p>
+  <svg id="d-acc" viewBox="0 0 1000 520"></svg>
+  <div class="foot"><span>JRC ERP · How it works</span><span>9</span></div>
+</section>
+
 <!-- 8. Approvals + what updates what -->
 <section class="page">
-  <div class="top"><div class="logo">JRC</div><h1>7 · Approvals &amp; what updates what</h1><span class="n">One inbox · one action, many effects</span></div>
+  <div class="top"><div class="logo">JRC</div><h1>9 · Approvals, alerts &amp; what updates what</h1><span class="n">One inbox · one action, many effects</span></div>
   <div class="cols">
     <div style="display:flex;flex-direction:column;min-height:0">
       <svg id="d-appr" viewBox="0 0 520 440"></svg>
+      <div class="box" style="margin-top:8px"><h3>Notifications (🔔)</h3><ul><li>Overdue invoices and bills, low stock, items to approve</li><li>Bonds, permits and staff documents nearing expiry</li><li>Failed tests, open NCRs, plant service due, delay (LD) exposure, milestones due</li></ul></div>
     </div>
     <div>
       <table>
@@ -143,16 +162,21 @@
           <tr><td>Approve annual leave</td><td>Deducts days from the employee's leave balance</td></tr>
           <tr><td>Assign equipment</td><td>Books it on the calendar (blocking clashes) and updates fleet utilisation</td></tr>
           <tr><td>Approve a variation order</td><td>Raises the revised contract value and future IPC amounts</td></tr>
+          <tr><td>Record a chainage section</td><td>Adds length × width to the matching BOQ line, moves the schedule bar and earned value</td></tr>
+          <tr><td>Produce an asphalt order</td><td>Consumes aggregates, sand, filler and bitumen from Main Yard; posts material cost to the project</td></tr>
+          <tr><td>Log plant hours with fuel</td><td>Issues diesel from the site store, advances the hour meter (service alerts), charges plant hire to the project</td></tr>
+          <tr><td>Approve a subcontractor certificate</td><td>Creates a payable net of retention and back-charges; posts subcontract cost</td></tr>
+          <tr><td>Reject an inspection request</td><td>Optionally raises an NCR that stays open until closed out</td></tr>
         </tbody>
       </table>
     </div>
   </div>
-  <div class="foot"><span>JRC ERP · How it works</span><span>8</span></div>
+  <div class="foot"><span>JRC ERP · How it works</span><span>10</span></div>
 </section>
 
 <!-- 9. Under the hood -->
 <section class="page">
-  <div class="top"><div class="logo">JRC</div><h1>8 · Under the hood</h1><span class="n">Current demo version</span></div>
+  <div class="top"><div class="logo">JRC</div><h1>10 · Under the hood</h1><span class="n">Current demo version</span></div>
   <div class="cols">
     <div style="display:flex;flex-direction:column;min-height:0">
       <svg id="d-tech" viewBox="0 0 520 450"></svg>
@@ -161,13 +185,15 @@
       <div class="box"><h3>How it runs</h3>
         <ul><li>Plain HTML, CSS and JavaScript — no installation, no server, no build step.</li>
           <li>Open <b>erp/index.html</b> in any modern browser.</li>
-          <li>Each screen is a page module; the address bar hash (e.g. <b>#/projects/P-2401/boq</b>) decides which one shows.</li></ul></div>
+          <li>Each screen is a page module; the address bar hash (e.g. <b>#/projects/P-2401/chainage</b>) decides which one shows.</li>
+          <li>The Site app can be installed on a phone's home screen when the ERP is served over the web.</li></ul></div>
       <div class="box"><h3>Where the data lives</h3>
         <ul><li>First launch loads the sample company from <b>data.js</b>.</li>
           <li>Every change is saved in the browser's local storage, so it survives a refresh.</li>
           <li>Settings → <b>Export backup</b> downloads everything as one JSON file; <b>Import</b> restores it; <b>Reset</b> returns to the sample.</li></ul></div>
       <div class="box"><h3>Limits of the demo</h3>
-        <ul><li>No logins — roles are shown but not enforced.</li>
+        <ul><li>Users are switched from a menu, not real logins; roles limit what each person sees but are not enforced by a server.</li>
+          <li>E-invoices are generated as XML files; email opens your mail app.</li>
           <li>Data is per browser; colleagues don't see each other's changes.</li></ul></div>
       <div class="box"><h3>Path to production</h3>
         <ul><li>Move the data store to a hosted database (e.g. Supabase) with user accounts and role-based access.</li>
@@ -175,7 +201,7 @@
           <li>Add email notifications, a mobile layout for site staff and document attachments.</li></ul></div>
     </div>
   </div>
-  <div class="foot"><span>JRC ERP · How it works</span><span>9</span></div>
+  <div class="foot"><span>JRC ERP · How it works</span><span>11</span></div>
 </section>
 
 <script>
@@ -268,29 +294,46 @@ function band(svgId, y, h, color) {
 
 // ---------- 1. Module map ----------
 (() => {
-  const mods = [
-    ['Dashboard', 'KPIs, cash flow and budget-vs-actual charts', 'sys'],
-    ['Approvals', 'One inbox for requisitions, POs, leave, plant', 'sys'],
-    ['Projects & BOQ', 'Estimate, schedule, site progress, cost control', 'prj'],
-    ['Equipment', 'Fleet, booking calendar, depreciation', 'eqp'],
-    ['Procurement', 'Requisition → RFQ → PO → GRN', 'sup'],
-    ['Warehouse', 'Stock in 3 stores, issues, transfers', 'sup'],
-    ['CRM', 'Opportunity pipeline to won work', 'com'],
-    ['Sales & Billing', 'Quotes, VOs, IPCs, invoices, statements', 'com'],
-    ['Cash & Accounts', 'Bank, AR/AP ageing, revenue, month-end', 'fin'],
-    ['VAT', 'Quarterly UAE VAT return', 'fin'],
-    ['HR & Payroll', 'Timesheets, payroll, WPS, gratuity', 'ppl'],
-    ['Settings', 'Company profile, users, approval rules', 'sys'],
+  const svg = document.getElementById('d-map');
+  arrowDefs(svg);
+  const groups = [
+    ['Overview', 'sys', 'L', [['Dashboard', 'KPIs, cash, cost, site & compliance'], ['Approvals', 'One inbox, filtered by role'], ['Notifications', '13 alert types, email digest'], ['Assistant', 'Ask questions, search all records']]],
+    ['Delivery', 'prj', 'L', [['Projects & BOQ', 'BOQ, costs, Gantt, chainage, documents'], ['Site app', 'Phone screens for site staff'], ['QA/QC & HSE', 'Inspections, tests, NCRs, incidents'], ['Asphalt Plant', 'Mix BOMs, production, tickets, yield'], ['Equipment', 'Fleet, calendar, logs & fuel, service']]],
+    ['Supply chain', 'sup', 'L', [['Procurement', 'Requisition → RFQ → PO → GRN'], ['Warehouse', '3 stores, issues, transfers'], ['Subcontractors', 'Subcontracts, certificates, back-charges']]],
+    ['Commercial', 'com', 'R', [['CRM', 'Pipeline, calendar, history'], ['Sales & Billing', 'Quotes, VOs, IPCs, e-invoices'], ['Contracts & Compliance', 'Bonds, permits, claims, LDs']]],
+    ['Finance', 'fin', 'R', [['Cash & Accounts', 'Cash, AR/AP, revenue, FX, close'], ['Accounting', 'Ledger, TB, P&L, balance sheet'], ['Taxes', 'VAT return, corporate tax estimate']]],
+    ['People', 'ppl', 'R', [['HR & Payroll', 'Payroll, WPS, gratuity, documents']]],
+    ['System', 'eqp', 'R', [['Settings', 'Companies, users, roles, backups']]],
   ];
-  const nodes = [{ id: 'hub', x: 500, y: 270, w: 250, h: 96, t: 'Shared company data', s: 'Projects · BOQ lines · items & stock · suppliers · clients · employees · equipment · invoices', c: 'hub' }];
-  const edges = [];
-  mods.forEach(([t, s, c], i) => {
-    const a = (-90 + i * 30) * Math.PI / 180;
-    nodes.push({ id: 'm' + i, x: 500 + 395 * Math.cos(a), y: 270 + 222 * Math.sin(a), w: 182, h: 58, t, s, c });
-    edges.push(['m' + i, 'hub']);
+  const hub = { x: 500, y: 265, w: 175, h: 120 };
+  const W = 380, LH = 25;
+  const col = { L: [], R: [] };
+  groups.forEach((g) => col[g[2]].push(g));
+  const gap = 14;
+  Object.entries(col).forEach(([side, gs]) => {
+    const total = gs.reduce((a, g) => a + 34 + g[3].length * LH, 0) + gap * (gs.length - 1);
+    let y = (530 - total) / 2;
+    gs.forEach(([title, c, , mods]) => {
+      const h = 34 + mods.length * LH, x = side === 'L' ? 10 : 990 - W;
+      const [stroke, fill] = C[c];
+      const ex = side === 'L' ? x + W : x, ey = y + h / 2;
+      const hx = side === 'L' ? hub.x - hub.w / 2 : hub.x + hub.w / 2;
+      el('line', { x1: ex, y1: ey, x2: hx, y2: hub.y + (ey - hub.y) * 0.35, stroke: '#98a2b3', 'stroke-width': 1.5, 'marker-end': 'url(#ah)' }, svg);
+      el('rect', { x, y, width: W, height: h, rx: 9, fill, stroke, 'stroke-width': 1.6 }, svg);
+      el('rect', { x, y, width: 5, height: h, rx: 2, fill: stroke }, svg);
+      el('text', { x: x + 14, y: y + 21, 'font-size': 12.5, 'font-weight': 700, fill: stroke, 'letter-spacing': 0.5 }, svg, title.toUpperCase());
+      mods.forEach(([m, d], i) => {
+        const ty = y + 42 + i * LH;
+        el('text', { x: x + 14, y: ty, 'font-size': 11.5, 'font-weight': 700, fill: '#1d2433' }, svg, m);
+        el('text', { x: x + 170, y: ty, 'font-size': 10, fill: '#475467' }, svg, d);
+      });
+      y += h + gap;
+    });
   });
-  diagram('d-map', nodes, edges);
-  document.getElementById('legend-map').innerHTML = [['prj', 'Delivery'], ['sup', 'Supply chain'], ['com', 'Commercial'], ['fin', 'Finance'], ['ppl', 'People'], ['eqp', 'Plant'], ['sys', 'Overview & system']]
+  el('rect', { x: hub.x - hub.w / 2, y: hub.y - hub.h / 2, width: hub.w, height: hub.h, rx: 12, fill: '#1b2230' }, svg);
+  [['Shared company data', 13.5, 700, '#fff', -30], ['Projects · BOQ · chainage', 10, 400, '#c9d1de', -8], ['items & stock · suppliers', 10, 400, '#c9d1de', 7], ['clients · staff · plant', 10, 400, '#c9d1de', 22], ['general ledger (2 companies)', 10, 400, '#f59e0b', 40]]
+    .forEach(([t, fs, fw, col2, dy]) => el('text', { x: hub.x, y: hub.y + dy, 'text-anchor': 'middle', 'font-size': fs, 'font-weight': fw, fill: col2 }, svg, t));
+  document.getElementById('legend-map').innerHTML = [['prj', 'Delivery'], ['sup', 'Supply chain'], ['com', 'Commercial'], ['fin', 'Finance'], ['ppl', 'People'], ['sys', 'Overview'], ['eqp', 'System']]
     .map(([k, l]) => `<span><i style="background:${C[k][0]}"></i>${l}</span>`).join('');
 })();
 
@@ -485,14 +528,64 @@ function band(svgId, y, h, color) {
   el('text', { x: 260, y: 425, 'text-anchor': 'middle', 'font-size': 10, fill: '#667085' }, svg, 'Approver per document and amount is set in Settings → Approval workflow');
 })();
 
+// ---------- Road operations ----------
+(() => {
+  const X = [100, 300, 500, 700, 900];
+  const nodes = [
+    { id: 'ch', x: X[0], y: 60, t: 'Record section', s: 'Layer + Ch 1+800 → 2+300 (site app)', c: 'prj' },
+    { id: 'boq', x: X[1], y: 60, t: 'BOQ done qty ↑', s: 'Length × width on the matching item', c: 'prj' },
+    { id: 'ev', x: X[2], y: 60, t: 'Earned value', s: 'Progress %, Gantt, cost control', c: 'prj' },
+    { id: 'ipc', x: X[3], y: 60, t: 'Next IPC', s: 'Cumulative work certified', c: 'com' },
+    { id: 'inv', x: X[4], y: 60, t: 'Invoice & cash', s: 'Ledger, VAT, receivables', c: 'fin' },
+    { id: 'mix', x: X[0], y: 185, t: 'Mix design (BOM)', s: 'Aggregates, sand, filler, bitumen per t', c: 'sup' },
+    { id: 'po', x: X[1], y: 185, t: 'Production order', s: 'Tonnes for a project', c: 'sup' },
+    { id: 'cons', x: X[2], y: 185, t: 'Raw materials consumed', s: 'Main Yard stock ↓, project material cost ↑', c: 'sup' },
+    { id: 'tk', x: X[3], y: 185, t: 'Delivery tickets', s: 'Truck, tonnes, temperature', c: 'sup' },
+    { id: 'yl', x: X[4], y: 185, t: 'Yield & wastage', s: 'Produced vs delivered vs area laid', c: 'sys' },
+    { id: 'log', x: X[0], y: 310, t: 'Daily plant log', s: 'Machine, hours, fuel, operator', c: 'eqp' },
+    { id: 'fuel', x: X[1], y: 310, t: 'Diesel issued', s: 'From site store stock', c: 'sup' },
+    { id: 'hm', x: X[2], y: 310, t: 'Hour meter', s: 'Service due alert', c: 'eqp' },
+    { id: 'hire', x: X[3], y: 310, t: 'Plant hire charge', s: 'Hours × rate, JPH → JRC', c: 'fin' },
+    { id: 'pc', x: X[4], y: 310, t: 'Project plant cost', s: 'Project P&L', c: 'prj' },
+    { id: 'ir', x: X[0], y: 435, t: 'Inspection request', s: 'To consultant', c: 'sys' },
+    { id: 'lt', x: X[1], y: 435, t: 'Lab / field test', s: 'Density, cores, Marshall', c: 'sys' },
+    { id: 'ncr', x: X[2], y: 435, t: 'NCR if failed', s: 'Corrective action, close-out', c: 'sys' },
+    { id: 'exp', x: X[3], y: 435, t: 'Permits, bonds, visas', s: 'Expiry dates tracked', c: 'com' },
+    { id: 'al', x: X[4], y: 435, t: 'Notifications', s: '🔔 and email digest', c: 'hub' },
+  ];
+  const b = { bold: true };
+  diagram('d-road', nodes, [
+    ['ch', 'boq', null, b], ['boq', 'ev', null, b], ['ev', 'ipc', null, b], ['ipc', 'inv', null, b],
+    ['mix', 'po', null, b], ['po', 'cons', null, b], ['cons', 'tk', null, b], ['tk', 'yl', null, b],
+    ['log', 'fuel', null, b], ['fuel', 'hm', null, b], ['hm', 'hire', null, b], ['hire', 'pc', null, b],
+    ['ir', 'lt', null, b], ['lt', 'ncr', null, b], ['ncr', 'exp', null, { dash: true }], ['exp', 'al', null, b],
+  ]);
+})();
+
+// ---------- Accounting ----------
+(() => {
+  const src = [['Sales invoices', 'Revenue, VAT out, retention, advance'], ['Receipts', 'Bank ↑, receivables ↓'], ['Supplier bills & payments', 'Stock or cost, VAT in, payables'], ['Subcontractor certificates', 'Subcontract cost, retention payable'], ['Stock issues & asphalt plant', 'Material cost to project'], ['Payroll & gratuity', 'Labour cost, WPS bank, EOSB'], ['Depreciation (JPH)', 'Monthly on the fleet'], ['Plant hire JPH → JRC', 'Intercompany, eliminated in group'], ['Manual journals', 'Rent, accruals, adjustments']];
+  const nodes = src.map(([t, s2], i) => ({ id: 's' + i, x: 135, y: 32 + i * 56, w: 250, h: 46, t, s: s2, c: ['com', 'fin', 'sup', 'sup', 'sup', 'ppl', 'eqp', 'eqp', 'sys'][i] }));
+  nodes.push({ id: 'j', x: 420, y: 255, w: 150, h: 90, t: 'Automatic journals', s: 'Balanced double entry, period lock', c: 'hub' });
+  nodes.push({ id: 'jrc', x: 590, y: 185, w: 130, h: 60, t: 'JRC ledger', s: 'Road contracting', c: 'fin' });
+  nodes.push({ id: 'jph', x: 590, y: 325, w: 130, h: 60, t: 'JPH ledger', s: 'Plant hire', c: 'fin' });
+  nodes.push({ id: 'grp', x: 750, y: 255, w: 130, h: 96, t: 'Company or group view', s: 'Group = JRC + JPH minus internal plant hire', c: 'hub' });
+  const outs = [['Trial balance', ''], ['Profit & loss', ''], ['Balance sheet', 'always balances'], ['General ledger', 'drill into any account'], ['Project P&L', 'project-tagged postings'], ['VAT & corporate tax', 'from the same figures']];
+  outs.forEach(([t, s2], i) => nodes.push({ id: 'o' + i, x: 922, y: 60 + i * 78, w: 150, h: 54, t, s: s2, c: 'sys' }));
+  const edges = src.map((_, i) => ['s' + i, 'j']);
+  edges.push(['j', 'jrc', null, { bold: true }], ['j', 'jph', null, { bold: true }], ['jrc', 'grp', null, { bold: true }], ['jph', 'grp', null, { bold: true }]);
+  outs.forEach((_, i) => edges.push(['grp', 'o' + i]));
+  diagram('d-acc', nodes, edges);
+})();
+
 // ---------- 8. Tech ----------
 (() => {
   const nodes = [
     { id: 'html', x: 260, y: 40, w: 220, h: 48, t: 'index.html', s: 'Opened in the browser', c: 'sys' },
     { id: 'app', x: 260, y: 130, w: 220, h: 54, t: 'app.js — router & menu', s: 'Reads #/page/tab from the address bar', c: 'sys' },
-    { id: 'pages', x: 260, y: 230, w: 220, h: 54, t: 'pages/*.js', s: 'One file per module: screens & actions', c: 'prj' },
-    { id: 'core', x: 260, y: 330, w: 220, h: 54, t: 'core.js', s: 'Data store, calculations, tables, charts', c: 'fin' },
-    { id: 'seed', x: 70, y: 410, w: 120, h: 50, t: 'data.js', s: 'Sample company', c: 'sup' },
+    { id: 'pages', x: 260, y: 230, w: 220, h: 54, t: 'pages/*.js', s: '20 modules: screens & actions', c: 'prj' },
+    { id: 'core', x: 260, y: 330, w: 220, h: 54, t: 'core.js + ledger.js', s: 'Data store, calculations, general ledger, charts', c: 'fin' },
+    { id: 'seed', x: 70, y: 410, w: 120, h: 50, t: 'data*.js', s: 'Sample company', c: 'sup' },
     { id: 'ls', x: 450, y: 410, w: 120, h: 50, t: 'Local storage', s: 'Saved in browser', c: 'ppl' },
     { id: 'json', x: 450, y: 230, w: 120, h: 50, t: 'Backup .json', s: 'Export / import', c: 'eqp' },
   ];
